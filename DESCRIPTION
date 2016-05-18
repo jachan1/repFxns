@@ -1,6 +1,6 @@
 Package: repFxns
 Title: Utility Functions for Reports
-Version: 1
+Version: 1.0.0
 Authors@R: person("James", "chan", email = "jachan1@gmail.com", role = c("aut", "cre"))
 Description: Various functions for putting together a rmarkdown report.
 Depends:
