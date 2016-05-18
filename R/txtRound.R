@@ -7,13 +7,13 @@
 #' @export
 #' @examples
 #' txtRound(c(0.002, 2.3049))
-#' [1] "0.002" "2.305"
+#' ## [1] "0.002" "2.305"
 #' 
 #' txtRound(c(0.000002, 2.3049), p=T)
-#' [1] "p&nbsp;&lt;&nbsp;0.001" "p&nbsp;=&nbsp;2.305" 
+#' ## [1] "p&nbsp;&lt;&nbsp;0.001" "p&nbsp;=&nbsp;2.305" 
 #' 
 #' txtRound(c(0.000002, 2.3049), p=T, html=F)
-#' [1] "p < 0.001" "p = 2.305"
+#' ## [1] "p < 0.001" "p = 2.305"
 
 txtRound <- function(x, digits=3, p=F, html=T){
   tout <- paste(round(x, digits))
