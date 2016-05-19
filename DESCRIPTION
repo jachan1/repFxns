@@ -4,7 +4,10 @@ Version: 1.0.0
 Authors@R: person("James", "chan", email = "jachan1@gmail.com", role = c("aut", "cre"))
 Description: Various functions for putting together a rmarkdown report.
 Depends:
-    R (>= 3.2.3)
+    R (>= 3.2.3),
+	stringr (>= 1.0.0),
+	ggplot2 (>= 2.1.0),
+	dplyr (>= 0.4.3)
 License: What license is it under?
 LazyData: true
 RoxygenNote: 5.0.1.9000
