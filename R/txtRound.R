@@ -22,7 +22,7 @@ txtRound <- function(x, digits=3, p=F, html=T){
     ps_txt<-s_txt<-" "; lt_txt="<";
   }
   if(!p) p_txt<-ps_txt<-eq_txt<-""; 
-  ifelse(x < (1/10^digits), 
+  ifelse(abs(x) < (1/10^digits), 
          paste0(p_txt, ps_txt, lt_txt, s_txt, 1/10^digits), 
          paste0(p_txt, ps_txt, eq_txt, ps_txt, tout))
 }
