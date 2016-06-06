@@ -16,7 +16,11 @@
 #' ## [1] "p < 0.001" "p = 2.305"
 
 txtRound <- function(x, digits=3, html=T, pt=F, sci=F){
-  tout <- ifelse(sci, prettyNum(x, digits=digits), formatC(x, digits=digits, format="f"))
+  tout <- if(sci){
+    prettyNum(x, digits=digits)
+  } else {
+    formatC(x, digits=digits, format="f")
+  }
   p_txt="p"; ps_txt<-s_txt<-"&nbsp;"; lt_txt="&lt;"; eq_txt="=";
   if(!html){
     ps_txt<-s_txt<-" "; lt_txt="<";
