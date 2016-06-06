@@ -15,14 +15,14 @@
 #' txtRound(c(0.000002, 2.3049), p=T, html=F)
 #' ## [1] "p < 0.001" "p = 2.305"
 
-txtRound <- function(x, digits=3, p=F, html=T){
-  tout <- paste(round(x, digits))
+txtRound <- function(x, digits=3, html=T, pt=F, sci=F){
+  tout <- ifelse(sci, prettyNum(x, digits=digits), formatC(x, digits=digits, format="f"))
   p_txt="p"; ps_txt<-s_txt<-"&nbsp;"; lt_txt="&lt;"; eq_txt="=";
   if(!html){
     ps_txt<-s_txt<-" "; lt_txt="<";
   }
-  if(!p) p_txt<-ps_txt<-eq_txt<-""; 
-  ifelse(abs(x) < (1/10^digits), 
+  if(!pt) p_txt<-ps_txt<-eq_txt<-""; 
+  ifelse(!sci & abs(x) < (1/10^digits), 
          paste0(p_txt, ps_txt, lt_txt, s_txt, 1/10^digits), 
          paste0(p_txt, ps_txt, eq_txt, ps_txt, tout))
 }
