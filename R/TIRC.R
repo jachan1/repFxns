@@ -65,7 +65,7 @@ TIRC.default <- function(x, title = "", header,
                          rowlabel.pos = "bottom", headLines = "single", compatibility = "LibreOffice", 
                          rnames, caption, caption.loc = "top", tfoot, label, zebra=F, highrows, TURK=F, rgroup_col,...)
 {
-  browser()
+
   if (length(dim(x)) != 2) 
     stop("Your table variable seems to have the wrong dimension, length(dim(x)) = ", 
          length(dim(x)), " != 2")
