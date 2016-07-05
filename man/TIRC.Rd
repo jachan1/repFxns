@@ -80,7 +80,7 @@ TIRC(x, ...)
 
 \item{zebra}{highlights alternate rows if TRUE (default FALSE)}
 
-\item{highrows}{number rows to be highlighted}
+\item{highrows}{logical indicating rows to highlight or string indicating column containing highlight column}
 
 \item{rgroup_col}{name of column to use instead of rgroup and n.rgroup}
 }

@@ -4,12 +4,12 @@
 \alias{txtRound}
 \title{A Rounding Function}
 \usage{
-txtRound(x, digits = 3, p = F, html = T)
+txtRound(x, digits = 3, html = T, pt = F, sci = F)
 }
 \arguments{
-\item{p}{adds in a 'p' before number (default FALSE)}
-
 \item{html}{breaks and special characters given in html (default TRUE).}
+
+\item{p}{adds in a 'p' before number (default FALSE)}
 }
 \description{
 This function rounds a number and returns a string.

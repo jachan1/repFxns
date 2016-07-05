@@ -24,7 +24,7 @@
 #' @param tfoot string used as footer for table
 #' @param label adds a css id to table
 #' @param zebra highlights alternate rows if TRUE (default FALSE)
-#' @param highrows number rows to be highlighted
+#' @param highrows logical indicating rows to highlight or string indicating column containing highlight column
 #' @param rgroup_col name of column to use instead of rgroup and n.rgroup
 #' @keywords htmlTable html table
 #' @export
@@ -115,6 +115,13 @@ TIRC.default <- function(x, title = "", header,
       rgroup <- unique_grps
       n.rgroup <- unique_grp_counts
       x <- x[!names(x) == rgroup_col]
+    }
+  }
+  
+  if(!missing(highrows)){
+    if(class(highrows)=="character" & length(highrows)==1){
+      highrows = x[[highrows]]
+      x[[highrows]] <- NULL
     }
   }
   
