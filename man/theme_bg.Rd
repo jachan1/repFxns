@@ -9,4 +9,6 @@ theme_bg()
 \description{
 theme with no background or gridlines just with x and y axis
 }
+\keyword{ggplot}
+\keyword{themes}
 
