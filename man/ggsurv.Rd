@@ -3,7 +3,6 @@
 \name{ggsurv}
 \alias{ggsurv}
 \alias{ggsurv.survfit}
-\alias{ggsurv.survfit.cox}
 \title{KM Curves with ggplot}
 \usage{
 ggsurv(s, ...)
@@ -12,12 +11,6 @@ ggsurv(s, ...)
   cens.col = "red", lty.est = 1, lty.ci = 2, cens.shape = 3,
   xlab = "Time", ylab = "", main = "", cumProb = F, yTicks = 5,
   dataLabels = "", addCounts = F, bw = F, legend_title, legend_pos, ...)
-
-\method{ggsurv}{survfit.cox}(s, CI = T, plot.cens = T,
-  surv.col = "gg.def", cens.col = "red", lty.est = 1, lty.ci = 2,
-  cens.shape = 3, xlab = "Time", ylab = "", main = "", cumProb = F,
-  yTicks = 5, dataLabels = "", addCounts = F, bw = F, legend_title,
-  legend_pos, strata_names)
 }
 \arguments{
 \item{s}{survival object}
