@@ -2,6 +2,8 @@
 #'
 #'
 #' theme with no background or gridlines just with x and y axis
+#' @keywords ggplot themes
+#' @export
 
 theme_bg <- function(){
   theme(panel.border = element_blank(), 
