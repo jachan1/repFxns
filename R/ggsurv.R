@@ -270,7 +270,7 @@ ggsurv_s <- function(s, yAxisScale, CI, plot.cens, surv.col, cens.col, lty.est, 
 }
 
 
-#' @rdname ggsurv
+#' @rdname ggsurv.survfit
 #' @export
 
 ggsurv.survfit <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
@@ -334,7 +334,7 @@ ggsurv.survfit <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
   }
 }
 
-#' @rdname ggsurv_cox
+#' @rdname ggsurv.survfit.cox
 #' @export
 #' 
 ggsurv.survfit.cox <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
