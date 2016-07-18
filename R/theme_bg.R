@@ -1,4 +1,4 @@
-#' Biostats Group ggplot Theme
+#' @title Biostats Group ggplot Theme
 #'
 #'
 #' theme with no background or gridlines just with x and y axis

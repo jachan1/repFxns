@@ -1,4 +1,4 @@
-#' A Rounding Function
+#' @title A Rounding Function
 #'
 #' This function rounds a number and returns a string. 
 #' @param html breaks and special characters given in html (default TRUE). 

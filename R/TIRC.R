@@ -1,4 +1,4 @@
-#' HTML Table With Some Extras
+#' @title HTML Table With Some Extras
 #'
 #' generic function to print html table.
 #' @param x Matrix, data.frame, or table with the data
@@ -29,6 +29,7 @@
 #' @keywords htmlTable html table
 #' @export
 #' @examples
+#' 
 #' tab_data <- data.frame(rgrp=c("Early", "Early", "Late"),
 #'                        rnms = c("A", "B", "C"), 
 #'                        Red=c("10 (40%)", "10 (40%)", "5 (20%)"), 

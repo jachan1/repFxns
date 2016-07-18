@@ -2,6 +2,7 @@
 % Please edit documentation in R/ggsurv.R
 \name{ggsurv.survfit.cox}
 \alias{ggsurv.survfit.cox}
+\title{ggsurv s3 survfit cox object}
 \usage{
 \method{ggsurv}{survfit.cox}(s, CI = T, plot.cens = T,
   surv.col = "gg.def", cens.col = "red", lty.est = 1, lty.ci = 2,

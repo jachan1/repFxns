@@ -5,7 +5,9 @@
 \alias{TIRC.default}
 \alias{TIRC.table}
 \alias{print.TIRC}
-\title{HTML Table With Some Extras}
+\title{HTML Table With Some Extras
+
+generic function to print html table.}
 \usage{
 TIRC(x, ...)
 
@@ -84,10 +86,8 @@ TIRC(x, ...)
 
 \item{rgroup_col}{name of column to use instead of rgroup and n.rgroup}
 }
-\description{
-generic function to print html table.
-}
 \examples{
+
 tab_data <- data.frame(rgrp=c("Early", "Early", "Late"),
                        rnms = c("A", "B", "C"), 
                        Red=c("10 (40\%)", "10 (40\%)", "5 (20\%)"), 

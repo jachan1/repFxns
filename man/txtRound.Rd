@@ -2,7 +2,9 @@
 % Please edit documentation in R/txtRound.R
 \name{txtRound}
 \alias{txtRound}
-\title{A Rounding Function}
+\title{A Rounding Function
+
+This function rounds a number and returns a string.}
 \usage{
 txtRound(x, digits = 3, html = T, pt = F, sci = F)
 }
@@ -10,9 +12,6 @@ txtRound(x, digits = 3, html = T, pt = F, sci = F)
 \item{html}{breaks and special characters given in html (default TRUE).}
 
 \item{p}{adds in a 'p' before number (default FALSE)}
-}
-\description{
-This function rounds a number and returns a string.
 }
 \examples{
 txtRound(c(0.002, 2.3049))

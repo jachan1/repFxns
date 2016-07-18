@@ -2,6 +2,7 @@
 % Please edit documentation in R/ggsurv.R
 \name{ggsurv_m}
 \alias{ggsurv_m}
+\title{ggsurv multi level helper}
 \usage{
 ggsurv_m(s, strata, yAxisScale, legend_title, legend_pos, starter, CI,
   plot.cens, surv.col, cens.col, lty.est, lty.ci, cens.shape, xlab, ylab, main,

@@ -2,6 +2,7 @@
 % Please edit documentation in R/ggsurv.R
 \name{ggsurv_s}
 \alias{ggsurv_s}
+\title{ggsurv single level helper}
 \usage{
 ggsurv_s(s, yAxisScale, CI, plot.cens, surv.col, cens.col, lty.est, lty.ci,
   cens.shape, xlab, ylab, main, cumProb, yTicks, dataLabels, addCounts, bw,

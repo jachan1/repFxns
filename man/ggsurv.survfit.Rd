@@ -2,6 +2,7 @@
 % Please edit documentation in R/ggsurv.R
 \name{ggsurv.survfit}
 \alias{ggsurv.survfit}
+\title{ggsurv survfit s3 object}
 \usage{
 \method{ggsurv}{survfit}(s, CI = T, plot.cens = T, surv.col = "gg.def",
   cens.col = "red", lty.est = 1, lty.ci = 2, cens.shape = 3,

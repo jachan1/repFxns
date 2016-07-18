@@ -2,7 +2,10 @@
 % Please edit documentation in R/ggsurv.R
 \name{ggsurv}
 \alias{ggsurv}
-\title{KM Curves with ggplot}
+\title{KM Curves with ggplot
+
+
+generic function to create a ggplot kaplan meier curve}
 \usage{
 ggsurv(s, ...)
 }
@@ -40,9 +43,6 @@ ggsurv(s, ...)
 \item{legend_title}{title to use for the legend}
 
 \item{legend_pos}{where to position the legend}
-}
-\description{
-generic function to create a ggplot kaplan meier curve
 }
 \examples{
 require(survival)

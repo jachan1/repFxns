@@ -1,4 +1,4 @@
-#' KM Curves with ggplot
+#' @title KM Curves with ggplot
 #'
 #'
 #' generic function to create a ggplot kaplan meier curve
@@ -50,6 +50,7 @@ ggsurv <- function(s, ...){
 }
 
 #' @rdname ggsurv_m
+#' @title ggsurv multi level helper
 #' @export
 
 ggsurv_m <- function(s, strata, yAxisScale, legend_title, legend_pos, starter, CI, plot.cens, surv.col, cens.col, lty.est, lty.ci, cens.shape, xlab, ylab, main, cumProb, yTicks, dataLabels, addCounts, bw, strata_names) {
@@ -185,6 +186,7 @@ ggsurv_m <- function(s, strata, yAxisScale, legend_title, legend_pos, starter, C
 
 
 #' @rdname ggsurv_s
+#' @title ggsurv single level helper
 #' @export
 ggsurv_s <- function(s, yAxisScale, CI, plot.cens, surv.col, cens.col, lty.est, lty.ci, cens.shape, xlab, ylab, main, cumProb, yTicks, dataLabels, addCounts, bw, legend_title, legend_pos, strata_names){
   nticks <- if(addCounts){
@@ -271,6 +273,7 @@ ggsurv_s <- function(s, yAxisScale, CI, plot.cens, surv.col, cens.col, lty.est, 
 
 
 #' @rdname ggsurv.survfit
+#' @title ggsurv survfit s3 object
 #' @export
 
 ggsurv.survfit <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
@@ -335,6 +338,7 @@ ggsurv.survfit <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
 }
 
 #' @rdname ggsurv.survfit.cox
+#' @title ggsurv s3 survfit cox object
 #' @export
 #' 
 ggsurv.survfit.cox <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',

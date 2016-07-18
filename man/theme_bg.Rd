@@ -2,12 +2,12 @@
 % Please edit documentation in R/theme_bg.R
 \name{theme_bg}
 \alias{theme_bg}
-\title{Biostats Group ggplot Theme}
+\title{Biostats Group ggplot Theme
+
+
+theme with no background or gridlines just with x and y axis}
 \usage{
 theme_bg()
-}
-\description{
-theme with no background or gridlines just with x and y axis
 }
 \keyword{ggplot}
 \keyword{themes}
