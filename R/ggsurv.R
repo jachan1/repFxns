@@ -334,7 +334,7 @@ ggsurv.survfit <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
   }
 }
 
-#' @rdname ggsurv
+#' @rdname ggsurv_cox
 #' @export
 #' 
 ggsurv.survfit.cox <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
