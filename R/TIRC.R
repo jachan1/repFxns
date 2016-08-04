@@ -67,6 +67,13 @@ TIRC.default <- function(x, title = "", header,
                          rnames, caption, caption.loc = "top", tfoot, label, zebra=F, highrows, TURK=F, rgroup_col,...)
 {
 
+  rm_cols <- function(ds, col){
+    xnames <- names(ds)
+    ds <- ds[!names(ds) == col]
+    names(ds) <- xnames[which(xnames!=col)]
+    ds
+  }
+  
   if (length(dim(x)) != 2) 
     stop("Your table variable seems to have the wrong dimension, length(dim(x)) = ", 
          length(dim(x)), " != 2")
@@ -116,7 +123,7 @@ TIRC.default <- function(x, title = "", header,
       unique_grp_counts <- c(unique_grp_counts, tmp_count)
       rgroup <- unique_grps
       n.rgroup <- unique_grp_counts
-      x <- x[!names(x) == rgroup_col]
+      x <- rm_cols(x, rgroup_col)
     }
   }
   
@@ -135,9 +142,9 @@ TIRC.default <- function(x, title = "", header,
     if(rnames == F) {
       rnames <- rep("", nrow(x))
     } else if(rnames %in% names(x)){
-      tmp_rnames <- rnames
+      tmp_rname <- rnames
       rnames <- as.character(x[[rnames]])
-      x <- x[names(x) != tmp_rnames]
+      x <- rm_cols(x, tmp_rname)
     }
   } else if (any(is.null(rownames(x))) && !missing(rgroup)) 
     warning("You have not specified rownames but you seem to have rgroups.", 
@@ -145,15 +152,11 @@ TIRC.default <- function(x, title = "", header,
             "to result in subhedings with indentation below then", 
             "you should change the rownames to the first column and then", 
             "remove it from the table matrix (the x argument object).")
-  if (!missing(rnames)) 
-    set_rownames <- TRUE
-  else set_rownames <- FALSE
+  if (!missing(rnames)) set_rownames <- TRUE else set_rownames <- FALSE
   
-  if (missing(header))
-    header = colnames(x)
+  if (missing(header)) header = colnames(x)
   
-  if (length(align) > 1) 
-    align <- paste(align, collapse = "")
+  if (length(align) > 1) align <- paste(align, collapse = "")
   if (tolower(compatibility) %in% c("libreoffice", "libre office", 
                                     "open office", "openoffice", "word", "ms word", "msword")) 
     compatibility <- "LibreOffice"
