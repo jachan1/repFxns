@@ -26,4 +26,3 @@ txtRound(c(0.000002, 2.3049), p=T, html=F)
 \keyword{html}
 \keyword{round}
 \keyword{string}
-

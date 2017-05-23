@@ -10,4 +10,3 @@
   yTicks = 5, dataLabels = "", addCounts = F, bw = F, legend_title,
   legend_pos, strata_names)
 }
-

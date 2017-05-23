@@ -8,4 +8,3 @@ ggsurv_s(s, yAxisScale, CI, plot.cens, surv.col, cens.col, lty.est, lty.ci,
   cens.shape, xlab, ylab, main, cumProb, yTicks, dataLabels, addCounts, bw,
   legend_title, legend_pos, strata_names)
 }
-

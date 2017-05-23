@@ -10,4 +10,4 @@ Depends:
 	dplyr (>= 0.4.3)
 License: What license is it under?
 LazyData: true
-RoxygenNote: 5.0.1.9000
+RoxygenNote: 6.0.1

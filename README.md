@@ -7,3 +7,4 @@ Collection of functions I used in rmarkdown reports
 * TIRC: [htmlTable](https://github.com/gforge/htmlTable) modified in a few ways              
 * ggsurv: [ggsurv](http://www.inside-r.org/packages/cran/GGally/docs/ggsurv) modified in a few ways               
 * theme_bg: simple ggplot theme            
+* tab1: summary statistics in table         

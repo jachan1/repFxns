@@ -106,4 +106,3 @@ TIRC(tab)
 \keyword{html}
 \keyword{htmlTable}
 \keyword{table}
-

@@ -11,4 +11,3 @@ theme_bg()
 }
 \keyword{ggplot}
 \keyword{themes}
-

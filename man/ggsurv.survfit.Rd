@@ -9,4 +9,3 @@
   xlab = "Time", ylab = "", main = "", cumProb = F, yTicks = 5,
   dataLabels = "", addCounts = F, bw = F, legend_title, legend_pos, ...)
 }
-
