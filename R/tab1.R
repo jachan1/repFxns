@@ -27,7 +27,7 @@
 #' grp_tirc(tab1 %>% select(-ordr, -N), grp="grp", p="p")
 #' 
 
-tab1_fxn <- function(tab_in, ds, grp, pp=1, mp=1, test=F, denom=F, header="both"){
+tab1_fxn <- function(tab_in, ds, grp, pp=1, mp=1, test=F, denom=F, header="both", long_cr=F){
   # print(tab_in)
   # if(tab_in$var=="ddx") browser()
   ## tab_in should include columns "varnm", "var", "type", *optional* "group"
@@ -37,7 +37,7 @@ tab1_fxn <- function(tab_in, ds, grp, pp=1, mp=1, test=F, denom=F, header="both"
   if(!"test_interval" %in% names(tab_in)) tab_in$test_interval = F
   if(!"fisher" %in% names(tab_in)) tab_in$fisher = F
   if(!missing(grp)){
-    ds_out <- ds %>% group_by_(grp) %>% do(tab1_fxn_hpr(.,tab_in, pp=pp, mp=mp, denom=denom, header=header))
+    ds_out <- ds %>% group_by_(grp) %>% do(tab1_fxn_hpr(.,tab_in, pp=pp, mp=mp, denom=denom, header=header, long_cr=long_cr))
     if(test){
       p <- tryCatch(test_grp(ds, grp, tab_in), error=function(e) NA)
       ds_out <- ds_out %>% ungroup %>% mutate(p=p)
@@ -45,7 +45,7 @@ tab1_fxn <- function(tab_in, ds, grp, pp=1, mp=1, test=F, denom=F, header="both"
     }
     ds_out
   } else {
-    ds %>% do(tab1_fxn_hpr(., tab_in, pp=pp, mp=mp, denom=denom, header=header))
+    ds %>% do(tab1_fxn_hpr(., tab_in, pp=pp, mp=mp, denom=denom, header=header, long_cr=long_cr))
   }
 }
 
@@ -70,9 +70,20 @@ tab1_fxn_hpr <- function(ds, tab_in, pp, mp, denom=F, header="both"){
   } else {
     function(target=tab_in$target) sprintf("%1.*f%% (%g)", pp, 100*sum(var_values == target, na.rm=T)/sum(!is.na(var_values)), sum(var_values == target, na.rm=T))
   }
-  msd_fxn <- function(vv=var_values) sprintf("%1.*f (%1.*f)", mp, mean(vv, na.rm=T), mp, sd(vv, na.rm=T))
+  msd_fxn <- function(vv=var_values) sprintf("%1.*f (%1.*f)", 
+                                             mp, mean(vv, na.rm=T), 
+                                             mp+1, sd(vv, na.rm=T))
+  msd_long_fxn <- function(vv=var_values) sprintf("%1.*f (%1.*f, range: %1.*f, %1.*f)", 
+                                                  mp, mean(vv, na.rm=T), 
+                                                  mp+1, sd(vv, na.rm=T),
+                                                  mp, min(vv, na.rm=T),
+                                                  mp, max(vv, na.rm=T))
   value = if(tab_in$type == "c"){
-    msd_fxn()
+    if(long_cr) {
+      msd_long_fxn()
+    } else {
+      msd_fxn()
+    }
   } else if(tab_in$type == "b"){
     pct_fxn()
   }
