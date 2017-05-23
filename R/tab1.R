@@ -138,7 +138,7 @@ grp_tirc<- function(x, rgroup_col="group", grp="study_grp", rnames="Characterist
   wide <- Reduce(function(x, y) merge(x, y, by=c(unique_cols, "rorder"), all=T), lapply(unique(x[[grp]]), function(y) x[x[[grp]]==y, c(cols, "rorder")]))
   grps <- as.character(unique(x[[grp]]))
   ngrps <- rep(length(cols)-2, length(grps))
-  pround <- function(x) ifelse(x < 0.001, "< 0.001", sprintf("%1.3f", x))
+  pround <- function(x) ifelse(x < 0.001, "&lt;&nbsp;0.001", sprintf("%1.3f", x))
   if(length(p) > 0) {
     wide <- merge(wide, unique(x[c(rgroup_col, rnames, p)]), by=c(rgroup_col, rnames), all.x=T)
     grps <- c(grps, "")
