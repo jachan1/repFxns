@@ -11,39 +11,21 @@ tab1_fxn(tab_in, ds, grp, pp = 1, mp = 1, test = F, denom = F,
   header = "both")
 }
 \arguments{
-\item{s}{survival object}
+\item{tab_in}{data.frame with variables var, varnm, and type. optional variables group, target, test_interval, fisher}
 
-\item{CI}{include confidence interval (default TRUE)}
+\item{ds}{dataset with variables referenced in tab_in}
 
-\item{plot.cens}{plot marks to indicate a censored subject (default TRUE)}
+\item{grp}{name of variable to be used for grouping}
 
-\item{surv.col}{colors to use for survival curves. Should match number of groups.}
+\item{pp}{rounding digits for proportions}
 
-\item{cens.col}{color of censor marks}
+\item{mp}{rounding digits for mean/sd}
 
-\item{cens.shape}{shape of censor marks}
+\item{test}{boolean to request test of group differences}
 
-\item{lty.est}{line type for survival curve}
+\item{denom}{boolean to request display of denominator in proportions}
 
-\item{lty.ci}{line type for confidence interval}
-
-\item{xlab}{label for x axis (default 'Time')}
-
-\item{ylab}{label for y axis (default '')}
-
-\item{main}{title for plot (default '')}
-
-\item{cumProb}{plot cumulative probability instead of survival (default FALSE)}
-
-\item{yTicks}{number of ticks on the y axis}
-
-\item{addCounts}{add number still at risk above the x axis. This is an attempt to replicate SAS behavior. It does not always give good results (default FALSE)}
-
-\item{bw}{print in black and white (default FALSE)}
-
-\item{legend_title}{title to use for the legend}
-
-\item{legend_pos}{where to position the legend}
+\item{header}{choose header for summary columns. "both" - "Percent (n) or Mean (SD)", "msd" - "Mean (SD)", np - "Percent (n)"}
 }
 \examples{
 
@@ -60,5 +42,6 @@ grp_tirc(tab1 \%>\% select(-ordr), grp="grp", p="p")
 grp_tirc(tab1 \%>\% select(-ordr, -N), grp="grp", p="p")
 
 }
-\keyword{ggplot}
-\keyword{survival}
+\keyword{print}
+\keyword{summary}
+\keyword{table}

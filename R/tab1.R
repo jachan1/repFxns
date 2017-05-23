@@ -2,24 +2,15 @@
 #'
 #'
 #' generic function to create a summary table of given variables.
-#' @param s survival object
-#' @param CI include confidence interval (default TRUE)
-#' @param plot.cens plot marks to indicate a censored subject (default TRUE)
-#' @param surv.col colors to use for survival curves. Should match number of groups.
-#' @param cens.col color of censor marks
-#' @param cens.shape shape of censor marks
-#' @param lty.est line type for survival curve
-#' @param lty.ci line type for confidence interval
-#' @param xlab label for x axis (default 'Time')
-#' @param ylab label for y axis (default '')
-#' @param main title for plot (default '')
-#' @param cumProb plot cumulative probability instead of survival (default FALSE)
-#' @param yTicks number of ticks on the y axis
-#' @param addCounts add number still at risk above the x axis. This is an attempt to replicate SAS behavior. It does not always give good results (default FALSE)
-#' @param bw print in black and white (default FALSE)
-#' @param legend_title title to use for the legend
-#' @param legend_pos where to position the legend
-#' @keywords survival ggplot
+#' @param tab_in data.frame with variables var, varnm, and type. optional variables group, target, test_interval, fisher
+#' @param ds dataset with variables referenced in tab_in
+#' @param grp name of variable to be used for grouping
+#' @param pp rounding digits for proportions
+#' @param mp rounding digits for mean/sd
+#' @param test boolean to request test of group differences
+#' @param denom boolean to request display of denominator in proportions
+#' @param header choose header for summary columns. "both" - "Percent (n) or Mean (SD)", "msd" - "Mean (SD)", np - "Percent (n)"
+#' @keywords table summary print
 #' @export
 #' @examples
 #' 
@@ -43,6 +34,8 @@ tab1_fxn <- function(tab_in, ds, grp, pp=1, mp=1, test=F, denom=F, header="both"
   ## if type == "b" then target should be available
   # if(tab_in$var == "white") browser()
   if(!"group" %in% names(tab_in)) tab_in$group = ""
+  if(!"test_interval" %in% names(tab_in)) tab_in$test_interval = F
+  if(!"fisher" %in% names(tab_in)) tab_in$fisher = F
   if(!missing(grp)){
     ds_out <- ds %>% group_by_(grp) %>% do(tab1_fxn_hpr(.,tab_in, pp=pp, mp=mp, denom=denom, header=header))
     if(test){
@@ -103,11 +96,29 @@ test_grp <- function(ds, grp, tab_in){
   ## linear model for continuous variables and a chisq test otherwise
   fm1 <- formula(sprintf("%s ~ %s", tab_in$var, grp))
   if(tab_in$type == "c"){
-    lm1 <- lm(fm1, data=na.omit(ds[c(tab_in$var, grp)]))
-    slm1 <- summary(lm1)
-    anova(lm1)[1, "Pr(>F)"]
+    if(length(unique(ds[[grp]])) == 2){
+      vt <- var.test(fm1, ds %>% filter(pair_grp %in% c("Sleep Dist, No Consti", "No Sleep Dist, Consti")))
+      var.equal = vt$p.value >= 0.05
+      tt <- t.test(fm1, ds %>% filter(pair_grp %in% c("Sleep Dist, No Consti", "No Sleep Dist, Consti")), var.equal=var.equal)
+      tt$p.value
+    } else if(tab_in$test_interval) {
+      print(sprintf("Test for assuming linear groups in order %s", paste(levels(factor(ds[[grp]])), collapse=", ")))
+      fm1 <- formula(sprintf("%s ~ as.numeric(factor(%s))", tab_in$var, grp))
+      lm1 <- lm(fm1, data=na.omit(ds[c(tab_in$var, grp)]))
+      slm1 <- summary(lm1)
+      anova(lm1)[1, "Pr(>F)"]
+    } else {
+      fm1 <- formula(sprintf("%s ~ factor(%s)", tab_in$var, grp))
+      lm1 <- lm(fm1, data=na.omit(ds[c(tab_in$var, grp)]))
+      slm1 <- summary(lm1)
+      anova(lm1)[1, "Pr(>F)"]
+    }
   } else {
-    chisq.test(ds[[tab_in$var]], ds[[grp]])$p.value
+    if(tab_in$fisher){
+      fisher.test(ds[[tab_in$var]], ds[[grp]])$p.value
+    } else {
+      chisq.test(ds[[tab_in$var]], ds[[grp]])$p.value
+    }
   }
 }
 
