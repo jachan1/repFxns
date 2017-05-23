@@ -53,7 +53,7 @@ tab1_fxn <- function(tab_in, ds, grp, pp=1, mp=1, test=F, denom=F, header="both"
 #' @title tab1 helper function
 #' @export
 
-tab1_fxn_hpr <- function(ds, tab_in, pp, mp, denom=F, header="both"){
+tab1_fxn_hpr <- function(ds, tab_in, pp, mp, denom=F, header="both", long_cr=F){
   ## header can be both, msd, or np
   # if(tab_in$var=="ddx") browser()
   var_values <- ds[[as.character(tab_in$var)]]
