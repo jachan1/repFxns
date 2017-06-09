@@ -4,5 +4,5 @@
 \alias{tab1_fxn_hpr}
 \title{tab1 helper function}
 \usage{
-tab1_fxn_hpr(ds, tab_in, pp, mp, denom = F, header = "both")
+tab1_fxn_hpr(ds, tab_in, pp, mp, denom = F, header = "both", long_cr = F)
 }

@@ -7,6 +7,7 @@
 #' @param grp name of variable to be used for grouping
 #' @param pp rounding digits for proportions
 #' @param mp rounding digits for mean/sd
+#' @param long_cr boolean to request more details in parenthesis
 #' @param test boolean to request test of group differences
 #' @param denom boolean to request display of denominator in proportions
 #' @param header choose header for summary columns. "both" - "Percent (n) or Mean (SD)", "msd" - "Mean (SD)", np - "Percent (n)"
@@ -73,11 +74,18 @@ tab1_fxn_hpr <- function(ds, tab_in, pp, mp, denom=F, header="both", long_cr=F){
   msd_fxn <- function(vv=var_values) sprintf("%1.*f (%1.*f)", 
                                              mp, mean(vv, na.rm=T), 
                                              mp+1, sd(vv, na.rm=T))
-  msd_long_fxn <- function(vv=var_values) sprintf("%1.*f (%1.*f, range: %1.*f, %1.*f)", 
-                                                  mp, mean(vv, na.rm=T), 
-                                                  mp+1, sd(vv, na.rm=T),
+  msd_long_fxn <- function(vv=var_values) {
+    nvv <- sum(!is.na(vv))
+    mnvv <- mean(vv, na.rm=T)
+    sdvv <- sd(vv, na.rm=T)
+    sprintf("%1.*f (%1.*f, 95%% CI: %1.*f, %1.*f, range: %1.*f, %1.*f)", 
+                                                  mp, mnvv, 
+                                                  mp+1, sdvv,
+                                                  mp, mnvv - qt(0.975, nvv-1)*sdvv/sqrt(nvv),
+                                                  mp, mnvv + qt(0.975, nvv-1)*sdvv/sqrt(nvv),
                                                   mp, min(vv, na.rm=T),
                                                   mp, max(vv, na.rm=T))
+  }
   value = if(tab_in$type == "c"){
     if(long_cr) {
       msd_long_fxn()

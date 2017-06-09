@@ -8,7 +8,7 @@
 generic function to create a summary table of given variables.}
 \usage{
 tab1_fxn(tab_in, ds, grp, pp = 1, mp = 1, test = F, denom = F,
-  header = "both")
+  header = "both", long_cr = F)
 }
 \arguments{
 \item{tab_in}{data.frame with variables var, varnm, and type. optional variables group, target, test_interval, fisher}
@@ -26,6 +26,8 @@ tab1_fxn(tab_in, ds, grp, pp = 1, mp = 1, test = F, denom = F,
 \item{denom}{boolean to request display of denominator in proportions}
 
 \item{header}{choose header for summary columns. "both" - "Percent (n) or Mean (SD)", "msd" - "Mean (SD)", np - "Percent (n)"}
+
+\item{long_cr}{boolean to request more details in parenthesis}
 }
 \examples{
 
