@@ -116,9 +116,9 @@ test_grp <- function(ds, grp, tab_in){
   fm1 <- formula(sprintf("%s ~ %s", tab_in$var, grp))
   if(tab_in$type == "c"){
     if(length(unique(ds[[grp]])) == 2){
-      vt <- var.test(fm1, ds %>% filter(pair_grp %in% c("Sleep Dist, No Consti", "No Sleep Dist, Consti")))
+      vt <- var.test(fm1, ds)
       var.equal = vt$p.value >= 0.05
-      tt <- t.test(fm1, ds %>% filter(pair_grp %in% c("Sleep Dist, No Consti", "No Sleep Dist, Consti")), var.equal=var.equal)
+      tt <- t.test(fm1, ds, var.equal=var.equal)
       tt$p.value
     } else if(tab_in$test_interval) {
       print(sprintf("Test for assuming linear groups in order %s", paste(levels(factor(ds[[grp]])), collapse=", ")))
@@ -146,9 +146,15 @@ test_grp <- function(ds, grp, tab_in){
 #' @title print out grouped table
 #' @export
 
-grp_tirc<- function(x, rgroup_col="group", grp="study_grp", rnames="Characteristic", p=F){
+grp_tirc<- function(x, rgroup_col="group", grp="study_grp", rnames="Characteristic", p=F, summ_col){
   if(p == F) p <- as.character()
   if(!rgroup_col %in% names(x)) x[[rgroup_col]]=""
+  if(missing(summ_col)) summ_col <- ifelse("Percent (n) or Mean (SD)" %in% names(x), "Percent (n) or Mean (SD)", 
+                               ifelse("Percent (n)" %in% names(x), "Percent (n)",
+                                      "Mean (SD)"))
+  
+  if(summ_col %in% names(x)) x[[summ_col]] <- ifelse(x[[summ_col]] == "NaN (NA)", "", x[[summ_col]])
+  
   cols <- setdiff(names(x), c(grp, p))
   rrdrs <- paste(x[[rgroup_col]], x[[rnames]], sep="_1_")
   x$rorder <- factor(rrdrs, unique(rrdrs))
