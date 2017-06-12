@@ -146,7 +146,7 @@ test_grp <- function(ds, grp, tab_in){
 #' @title print out grouped table
 #' @export
 
-grp_tirc<- function(x, rgroup_col="group", grp="study_grp", rnames="Characteristic", p=F, summ_col){
+grp_tirc<- function(x, rgroup_col="group", grp="study_grp", rnames="Characteristic", p=F, summ_col, ...){
   if(p == F) p <- as.character()
   if(!rgroup_col %in% names(x)) x[[rgroup_col]]=""
   if(missing(summ_col)) summ_col <- ifelse("Percent (n) or Mean (SD)" %in% names(x), "Percent (n) or Mean (SD)", 
@@ -174,5 +174,5 @@ grp_tirc<- function(x, rgroup_col="group", grp="study_grp", rnames="Characterist
   wide <- wide[order(wide[["rorder"]]), -1*which(names(wide)=="rorder")]
   names(wide) <- c(unique_cols, rep(setdiff(cols, unique_cols), length(unique(x[[grp]]))), p)
 
-  TIRC(wide, rnames=rnames, rgroup_col=rgroup_col, cgroup=grps, n.cgroup=ngrps)
+  TIRC(wide, rnames=rnames, rgroup_col=rgroup_col, cgroup=grps, n.cgroup=ngrps, ...)
 }
