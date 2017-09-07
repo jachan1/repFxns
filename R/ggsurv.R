@@ -123,8 +123,8 @@ ggsurv_m <- function(s, strata, yAxisScale, legend_title, legend_pos, starter, C
     theme(axis.line = element_line(colour = "black"),
           panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(),
-          panel.border = element_blank(),
-          panel.background = element_blank(), panel.border=element_rect(fill=NA))
+          panel.background = element_blank(), 
+          panel.border=element_rect(fill=NA))
   
   if(bw){
     pl <- pl + geom_step(aes(lty = group))
@@ -245,8 +245,8 @@ ggsurv_s <- function(s, yAxisScale, CI, plot.cens, surv.col, cens.col, lty.est, 
     theme(axis.line = element_line(colour = "black"),
           panel.grid.major = element_blank(),
           panel.grid.minor = element_blank(),
-          panel.border = element_blank(),
-          panel.background = element_blank(), panel.border=element_rect(fill=NA))
+          panel.background = element_blank(), 
+          panel.border=element_rect(fill=NA))
   
   ## add counts below graph
   if(addCounts) {
