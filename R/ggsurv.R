@@ -129,7 +129,7 @@ ggsurv_m <- function(s, strata, yAxisScale, legend_title, legend_pos, starter, C
   if(bw){
     pl <- pl + geom_step(aes(lty = group))
   } else {
-    pl <- pl + geom_step(aes(col = group))
+    pl <- pl + geom_step(aes(col = group, lty = group))
   }
   
   ## counts added
@@ -141,7 +141,8 @@ ggsurv_m <- function(s, strata, yAxisScale, legend_title, legend_pos, starter, C
   
   ## colors defined
   pl <- if(surv.col[1] != 'gg.def'){
-    pl + col
+    pl + scale_colour_manual(name = gr.name, 
+                        values = surv.col)
   } else {
     pl + scale_colour_discrete(name = gr.name)
   }
