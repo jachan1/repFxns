@@ -38,7 +38,14 @@ tab1_fxn <- function(tab_in, ds, grp, pp=1, mp=1, test=F, denom=F, header="both"
   if(!"test_interval" %in% names(tab_in)) tab_in$test_interval = F
   if(!"fisher" %in% names(tab_in)) tab_in$fisher = F
   if(!missing(grp)){
-    ds_out <- ds %>% group_by_(grp) %>% do(tab1_fxn_hpr(.,tab_in, pp=pp, mp=mp, denom=denom, header=header, long_cr=long_cr))
+    var_values <- ds[[as.character(tab_in$var)]]
+    targets <- if(class(var_values) == "factor") {
+      levels(var_values)
+    } else {
+      unique(var_values[!is.na(var_values)])
+    }
+    ds_out <- ds %>% group_by_(grp) %>% 
+      do(tab1_fxn_hpr(.,tab_in, pp=pp, mp=mp, denom=denom, header=header, long_cr=long_cr, targets=targets))
     if(test){
       p <- tryCatch(test_grp(ds, grp, tab_in), error=function(e) NA)
       ds_out <- ds_out %>% ungroup %>% mutate(p=p)
@@ -46,7 +53,7 @@ tab1_fxn <- function(tab_in, ds, grp, pp=1, mp=1, test=F, denom=F, header="both"
     }
     ds_out
   } else {
-    ds %>% do(tab1_fxn_hpr(., tab_in, pp=pp, mp=mp, denom=denom, header=header, long_cr=long_cr))
+    ds %>% do(tab1_fxn_hpr(., tab_in, pp=pp, mp=mp, denom=denom, header=header, long_cr=long_cr, targets=targets))
   }
 }
 
@@ -54,16 +61,14 @@ tab1_fxn <- function(tab_in, ds, grp, pp=1, mp=1, test=F, denom=F, header="both"
 #' @title tab1 helper function
 #' @export
 
-tab1_fxn_hpr <- function(ds, tab_in, pp, mp, denom=F, header="both", long_cr=F){
+tab1_fxn_hpr <- function(ds, tab_in, pp, mp, denom=F, header="both", long_cr=F, targets=c()){
   ## header can be both, msd, or np
   # if(tab_in$var=="ddx") browser()
   var_values <- ds[[as.character(tab_in$var)]]
-  if(class(var_values) == "factor") {
-    targets <- levels(var_values)
-    var_values <- as.character(var_values)
+  var_values <- if(class(var_values) == "factor") {
+    as.character(var_values)
   } else {
-    var_values <- ifelse(var_values == "", NA, var_values)
-    targets <- unique(var_values[!is.na(var_values)])
+    ifelse(var_values == "", NA, var_values)
   }
   n_avail <- sum(!is.na(var_values))
   pct_fxn <- if(denom){
@@ -95,7 +100,7 @@ tab1_fxn_hpr <- function(ds, tab_in, pp, mp, denom=F, header="both", long_cr=F){
   } else if(tab_in$type == "b"){
     pct_fxn()
   }
-  
+ 
   summary_head <- ifelse(header=="msd", "Mean (SD)", ifelse(header=="np", "Percent (n)", "Percent (n) or Mean (SD)"))
   tab_out <- if(tab_in$type == "m"){
     values <- sapply(targets, pct_fxn)
@@ -160,7 +165,8 @@ grp_tirc<- function(x, rgroup_col="group", grp="study_grp", rnames="Characterist
   x$rorder <- factor(rrdrs, unique(rrdrs))
   # print(cols)
   unique_cols <- c(rgroup_col, rnames)
-  wide <- Reduce(function(x, y) merge(x, y, by=c(unique_cols, "rorder"), all=T), lapply(unique(x[[grp]]), function(y) x[x[[grp]]==y, c(cols, "rorder")]))
+  wide <- Reduce(function(x, y) merge(x, y, by=c(unique_cols, "rorder"), all=T), 
+                 lapply(unique(x[[grp]]), function(y) x[x[[grp]]==y, c(cols, "rorder")]))
   grps <- as.character(unique(x[[grp]]))
   ngrps <- rep(length(cols)-2, length(grps))
   pround <- function(x) ifelse(x < 0.001, "&lt;0.001", sprintf("%1.3f", x))
