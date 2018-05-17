@@ -28,7 +28,7 @@
 #' grp_tirc(tab1 %>% select(-ordr, -N), grp="grp", p="p")
 #' 
 
-tab1_fxn <- function(tab_in, ds, grp, pp=1, mp=1, test=F, denom=F, header="both", long_cr=F){
+tab1_fxn <- function(tab_in, ds, grp, pp=1, mp=1, test=F, denom=F, header="both", long_cr=F, plusmn=F){
   # print(tab_in)
   # if(tab_in$var=="ddx") browser()
   ## tab_in should include columns "varnm", "var", "type", *optional* "group"
@@ -46,7 +46,7 @@ tab1_fxn <- function(tab_in, ds, grp, pp=1, mp=1, test=F, denom=F, header="both"
   
   if(!missing(grp)){
     ds_out <- ds %>% group_by_(grp) %>% 
-      do(tab1_fxn_hpr(.,tab_in, pp=pp, mp=mp, denom=denom, header=header, long_cr=long_cr, targets=targets))
+      do(tab1_fxn_hpr(.,tab_in, pp=pp, mp=mp, denom=denom, header=header, long_cr=long_cr, targets=targets, plusmn=plusmn))
     if(test){
       p <- tryCatch(test_grp(ds, grp, tab_in), error=function(e) NA)
       ds_out <- ds_out %>% ungroup %>% mutate(p=p)
@@ -54,7 +54,7 @@ tab1_fxn <- function(tab_in, ds, grp, pp=1, mp=1, test=F, denom=F, header="both"
     }
     ds_out
   } else {
-    ds %>% do(tab1_fxn_hpr(., tab_in, pp=pp, mp=mp, denom=denom, header=header, long_cr=long_cr, targets=targets))
+    ds %>% do(tab1_fxn_hpr(., tab_in, pp=pp, mp=mp, denom=denom, header=header, long_cr=long_cr, targets=targets, plusmn=plusmn))
   }
 }
 
@@ -62,7 +62,7 @@ tab1_fxn <- function(tab_in, ds, grp, pp=1, mp=1, test=F, denom=F, header="both"
 #' @title tab1 helper function
 #' @export
 
-tab1_fxn_hpr <- function(ds, tab_in, pp, mp, denom=F, header="both", long_cr=F, targets=c()){
+tab1_fxn_hpr <- function(ds, tab_in, pp, mp, denom=F, header="both", long_cr=F, targets=c(), plusmn=F){
   ## header can be both, msd, or np
   # if(tab_in$var=="ddx") browser()
   var_values <- ds[[as.character(tab_in$var)]]
@@ -77,7 +77,8 @@ tab1_fxn_hpr <- function(ds, tab_in, pp, mp, denom=F, header="both", long_cr=F, 
   } else {
     function(target=tab_in$target) sprintf("%1.*f%% (%g)", pp, 100*sum(var_values == target, na.rm=T)/sum(!is.na(var_values)), sum(var_values == target, na.rm=T))
   }
-  msd_fxn <- function(vv=var_values) sprintf("%1.*f (%1.*f)", 
+  msd_str <- ifelse(plusmn, "%1.*f &plusmn; %1.*f", "%1.*f (%1.*f)")
+  msd_fxn <- function(vv=var_values) sprintf(msd_str, 
                                              mp, mean(vv, na.rm=T), 
                                              mp+1, sd(vv, na.rm=T))
   msd_long_fxn <- function(vv=var_values) {
@@ -101,8 +102,8 @@ tab1_fxn_hpr <- function(ds, tab_in, pp, mp, denom=F, header="both", long_cr=F, 
   } else if(tab_in$type == "b"){
     pct_fxn()
   }
- 
-  summary_head <- ifelse(header=="msd", "Mean (SD)", ifelse(header=="np", "Percent (n)", "Percent (n) or Mean (SD)"))
+  msd_head = ifelse(plusmn, "Mean &plusmn; SD", "Mean (SD)")
+  summary_head <- ifelse(header=="msd", msd_head, ifelse(header=="np", "Percent (n)", sprintf("Percent (n) or %s", msd_head)))
   tab_out <- if(tab_in$type == "m"){
     values <- sapply(targets, pct_fxn)
     data_frame(group=tab_in$varnm, Characteristic=targets, N=n_avail, summary_col=values)
@@ -155,11 +156,6 @@ test_grp <- function(ds, grp, tab_in){
 grp_tirc<- function(x, rgroup_col="group", grp="study_grp", rnames="Characteristic", p=F, summ_col, ...){
   if(p == F) p <- as.character()
   if(!rgroup_col %in% names(x)) x[[rgroup_col]]=""
-  if(missing(summ_col)) summ_col <- ifelse("Percent (n) or Mean (SD)" %in% names(x), "Percent (n) or Mean (SD)", 
-                               ifelse("Percent (n)" %in% names(x), "Percent (n)",
-                                      "Mean (SD)"))
-  
-  if(summ_col %in% names(x)) x[[summ_col]] <- ifelse(x[[summ_col]] == "NaN (NA)", "", x[[summ_col]])
   
   cols <- setdiff(names(x), c(grp, p))
   rrdrs <- paste(x[[rgroup_col]], x[[rnames]], sep="_1_")
