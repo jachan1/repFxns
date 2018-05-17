@@ -37,13 +37,14 @@ tab1_fxn <- function(tab_in, ds, grp, pp=1, mp=1, test=F, denom=F, header="both"
   if(!"group" %in% names(tab_in)) tab_in$group = ""
   if(!"test_interval" %in% names(tab_in)) tab_in$test_interval = F
   if(!"fisher" %in% names(tab_in)) tab_in$fisher = F
+  var_values <- ds[[as.character(tab_in$var)]]
+  targets <- if(class(var_values) == "factor") {
+    levels(var_values)
+  } else {
+    unique(var_values[!is.na(var_values)])
+  }
+  
   if(!missing(grp)){
-    var_values <- ds[[as.character(tab_in$var)]]
-    targets <- if(class(var_values) == "factor") {
-      levels(var_values)
-    } else {
-      unique(var_values[!is.na(var_values)])
-    }
     ds_out <- ds %>% group_by_(grp) %>% 
       do(tab1_fxn_hpr(.,tab_in, pp=pp, mp=mp, denom=denom, header=header, long_cr=long_cr, targets=targets))
     if(test){
