@@ -120,7 +120,7 @@ tab1_fxn_hpr <- function(ds, tab_in, pp, mp, denom=F, header="both", long_cr=F, 
 
 test_grp <- function(ds, grp, tab_in){
   ## linear model for continuous variables and a chisq test otherwise
-  fm1 <- formula(sprintf("%s ~ %s", tab_in$var, grp))
+  fm1 <- formula(sprintf("`%s` ~ `%s`", tab_in$var, grp))
   if(tab_in$type == "c"){
     if(length(unique(ds[[grp]])) == 2){
       vt <- var.test(fm1, ds)
@@ -129,12 +129,12 @@ test_grp <- function(ds, grp, tab_in){
       tt$p.value
     } else if(tab_in$test_interval) {
       print(sprintf("Test for assuming linear groups in order %s", paste(levels(factor(ds[[grp]])), collapse=", ")))
-      fm1 <- formula(sprintf("%s ~ as.numeric(factor(%s))", tab_in$var, grp))
+      fm1 <- formula(sprintf("`%s` ~ as.numeric(factor(`%s`))", tab_in$var, grp))
       lm1 <- lm(fm1, data=na.omit(ds[c(tab_in$var, grp)]))
       slm1 <- summary(lm1)
       anova(lm1)[1, "Pr(>F)"]
     } else {
-      fm1 <- formula(sprintf("%s ~ factor(%s)", tab_in$var, grp))
+      fm1 <- formula(sprintf("`%s` ~ factor(`%s`)", tab_in$var, grp))
       lm1 <- lm(fm1, data=na.omit(ds[c(tab_in$var, grp)]))
       slm1 <- summary(lm1)
       anova(lm1)[1, "Pr(>F)"]
