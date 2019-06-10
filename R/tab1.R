@@ -158,9 +158,16 @@ grp_tirc<- function(x, rgroup_col="group", grp="study_grp", rnames="Characterist
   if(!rgroup_col %in% names(x)) x[[rgroup_col]]=""
   
   cols <- setdiff(names(x), c(grp, p))
+  
+  miss_str <- "Missing"
+  while(miss_str %in% names(x)) {
+    miss_str <- paste0("~", miss_str)
+  }
+  
   x_pc <- x %>% 
-    mutate(rorder = factor(paste(!! sym(rgroup_col), !! sym(rnames), sep="_1_")),
-           !!grp := ifelse(is.na(!! sym(grp)), miss_str, !! sym(grp)))
+    mutate(rorder = factor(paste(!! sym(rgroup_col), !! sym(rnames), sep="_1_")))
+  if(any(is.na(x_pc[[grp]]))) x_pc[[grp]] <- ifelse(is.na(x_pc[[grp]]), miss_str, as.character(x_pc[[grp]]))
+  
   unique_cols <- c(rgroup_col, rnames)
   wide <- Reduce(function(d1, d2) merge(d1, d2, by=c(unique_cols, "rorder"), all=T), 
                  lapply(unique(x_pc[[grp]]), function(y) x_pc[x_pc[[grp]]==y, c(cols, "rorder")]))
