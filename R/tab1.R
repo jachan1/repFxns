@@ -158,17 +158,17 @@ grp_tirc<- function(x, rgroup_col="group", grp="study_grp", rnames="Characterist
   if(!rgroup_col %in% names(x)) x[[rgroup_col]]=""
   
   cols <- setdiff(names(x), c(grp, p))
-  rrdrs <- paste(x[[rgroup_col]], x[[rnames]], sep="_1_")
-  x$rorder <- factor(rrdrs, unique(rrdrs))
-  # print(cols)
+  x_pc <- x %>% 
+    mutate(rorder = factor(paste(!! sym(rgroup_col), !! sym(rnames), sep="_1_")),
+           !!grp := ifelse(is.na(!! sym(grp)), miss_str, !! sym(grp)))
   unique_cols <- c(rgroup_col, rnames)
-  wide <- Reduce(function(x, y) merge(x, y, by=c(unique_cols, "rorder"), all=T), 
-                 lapply(unique(x[[grp]]), function(y) x[x[[grp]]==y, c(cols, "rorder")]))
-  grps <- as.character(unique(x[[grp]]))
+  wide <- Reduce(function(d1, d2) merge(d1, d2, by=c(unique_cols, "rorder"), all=T), 
+                 lapply(unique(x_pc[[grp]]), function(y) x_pc[x_pc[[grp]]==y, c(cols, "rorder")]))
+  grps <- as.character(unique(x_pc[[grp]]))
   ngrps <- rep(length(cols)-2, length(grps))
-  pround <- function(x) ifelse(x < 0.001, "&lt;0.001", sprintf("%1.3f", x))
+  pround <- function(p1) ifelse(p1 < 0.001, "&lt;0.001", sprintf("%1.3f", p1))
   if(length(p) > 0) {
-    wide <- merge(wide, unique(x[c(rgroup_col, rnames, p)]), by=c(rgroup_col, rnames), all.x=T)
+    wide <- merge(wide, unique(x_pc[c(rgroup_col, rnames, p)]), by=c(rgroup_col, rnames), all.x=T)
     grps <- c(grps, "")
     ngrps <- c(ngrps, 1)
     wide[[p]] <- pround(wide[[p]])
