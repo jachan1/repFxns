@@ -2,7 +2,7 @@
 #'
 #'
 #' generic function to create a summary table of given variables.
-#' @param tab_in data.frame with variables var, varnm, and type. optional variables group, target, test_interval, fisher
+#' @param tab_in data.frame with variables var, varnm, and type. optional variables group, target, test_interval, fisher, mwu
 #' @param ds dataset with variables referenced in tab_in
 #' @param grp name of variable to be used for grouping
 #' @param pp rounding digits for proportions
@@ -37,6 +37,7 @@ tab1_fxn <- function(tab_in, ds, grp, pp=1, mp=1, test=F, denom=F, header="both"
   if(!"group" %in% names(tab_in)) tab_in$group = ""
   if(!"test_interval" %in% names(tab_in)) tab_in$test_interval = F
   if(!"fisher" %in% names(tab_in)) tab_in$fisher = F
+  if(!"mwu" %in% names(tab_in)) tab_in$mwu = F
   var_values <- ds[[as.character(tab_in$var)]]
   targets <- if(class(var_values) == "factor") {
     levels(var_values)
@@ -123,10 +124,15 @@ test_grp <- function(ds, grp, tab_in){
   fm1 <- formula(sprintf("`%s` ~ `%s`", tab_in$var, grp))
   if(tab_in$type == "c"){
     if(length(unique(ds[[grp]])) == 2){
-      vt <- var.test(fm1, ds)
-      var.equal = vt$p.value >= 0.05
-      tt <- t.test(fm1, ds, var.equal=var.equal)
-      tt$p.value
+      if(tab_in$mwu) {
+        wt <- wilcox.test(fm1, ds)
+        wt$p.value
+      } else {
+        vt <- var.test(fm1, ds)
+        var.equal = vt$p.value >= 0.05
+        tt <- t.test(fm1, ds, var.equal=var.equal)
+        tt$p.value 
+      }
     } else if(tab_in$test_interval) {
       print(sprintf("Test for assuming linear groups in order %s", paste(levels(factor(ds[[grp]])), collapse=", ")))
       fm1 <- formula(sprintf("`%s` ~ as.numeric(factor(`%s`))", tab_in$var, grp))
