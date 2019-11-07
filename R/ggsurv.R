@@ -64,7 +64,7 @@ ggsurv_m <- function(s, strata, yAxisScale, legend_title, legend_pos, starter, C
   }
   
   gr.name <- if(missing(legend_title)) {
-    ifelse(class(s)[1] == "survfit", unlist(strsplit(names(s$strata), '='))[1], NA)
+    ifelse("survfit" %in% class(s), unlist(strsplit(names(s$strata), '='))[1], NA)
   }
   else {
     gr.name = legend_title
@@ -230,12 +230,12 @@ ggsurv_s <- function(s, yAxisScale, CI, plot.cens, surv.col, cens.col, lty.est, 
   time_seq <- with(dat, seq(min(time), max(time), length.out = ncount_labs))
   
   count_cuts <- dat %>% mutate(time_grp = cut(time, time_seq)) %>% 
-    group_by(time_grp) %>% summarise(time=max(time)) %>% right_join(data_frame(time_grp=levels(.$time_grp)), by="time_grp")
+    group_by(time_grp) %>% summarise(time=max(time)) %>% right_join(tibble(time_grp=levels(.$time_grp)), by="time_grp")
   
   dat$count_lab <- dat$atRisk
   dat$count_lab[!dat$time %in% c(min(dat$time), count_cuts$time)] <- NA
   dat <- dat %>% 
-    left_join(data_frame(time = c(min(dat$time), count_cuts$time), 
+    left_join(tibble(time = c(min(dat$time), count_cuts$time), 
                          lab_time = time_seq), by="time")
   
   ## initial ggplot object created
@@ -288,7 +288,7 @@ ggsurv.survfit <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
   strata <- ifelse(is.null(s$strata) ==T, 1, length(s$strata))
   stopifnot(length(surv.col) == 1 | length(surv.col) == strata)
   stopifnot(length(lty.est) == 1 | length(lty.est) == strata)
-  if(class(s) != "survfit") stop("First parameter needs to be a survfit object")
+  if(!"survfit" %in% class(s)) stop("First parameter needs to be a survfit object")
   ## need a separate construction for single strata and multi-strata
 
   # Extract info from survfit object 
@@ -315,7 +315,7 @@ ggsurv.survfit <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
         lowCol <- c(1, s$lower[ ind[[i]] ])
         highCol <- c(1, s$upper[ ind[[i]] ])
       }
-      tmp <-data_frame(
+      tmp <-tibble(
         time = c(0, s$time[ ind[[i]] ]),
         surv = survCol,
         up = highCol,
@@ -378,7 +378,7 @@ ggsurv.survfit.cox <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
         lowCol <- c(1, s$lower[,i])
         highCol <- c(1, s$upper[,i])
       }
-      tmp <- data_frame(time=c(0, s$time), surv=survCol, 
+      tmp <- tibble(time=c(0, s$time), surv=survCol, 
                         up=highCol, low=lowCol,
                         cens=c(0, s$n.censor), group=strata_names[i],
                         atRisk=c(s$n.risk[1], s$n.risk))

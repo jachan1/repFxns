@@ -28,7 +28,7 @@
 #' grp_tirc(tab1 %>% select(-ordr, -N), grp="grp", p="p")
 #' 
 
-tab1_fxn <- function(tab_in, ds, grp, pp=1, mp=1, test=F, denom=F, header="both", long_cr=F, plusmn=F){
+tab1_fxn <- function(tab_in, ds, grp, pp=0, mp=1, test=F, denom=F, header="both", long_cr=F, plusmn=F){
   # print(tab_in)
   # if(tab_in$var=="ddx") browser()
   ## tab_in should include columns "varnm", "var", "type", *optional* "group"
@@ -81,14 +81,14 @@ tab1_fxn_hpr <- function(ds, tab_in, pp, mp, denom=F, header="both", long_cr=F, 
   msd_str <- ifelse(plusmn, "%1.*f &plusmn; %1.*f", "%1.*f (%1.*f)")
   msd_fxn <- function(vv=var_values) sprintf(msd_str, 
                                              mp, mean(vv, na.rm=T), 
-                                             mp+1, sd(vv, na.rm=T))
+                                             mp, sd(vv, na.rm=T))
   msd_long_fxn <- function(vv=var_values) {
     nvv <- sum(!is.na(vv))
     mnvv <- mean(vv, na.rm=T)
     sdvv <- sd(vv, na.rm=T)
     sprintf("%1.*f (%1.*f, 95%% CI: %1.*f, %1.*f, range: %1.*f, %1.*f)", 
                                                   mp, mnvv, 
-                                                  mp+1, sdvv,
+                                                  mp, sdvv,
                                                   mp, mnvv - qt(0.975, nvv-1)*sdvv/sqrt(nvv),
                                                   mp, mnvv + qt(0.975, nvv-1)*sdvv/sqrt(nvv),
                                                   mp, min(vv, na.rm=T),
@@ -107,9 +107,9 @@ tab1_fxn_hpr <- function(ds, tab_in, pp, mp, denom=F, header="both", long_cr=F, 
   summary_head <- ifelse(header=="msd", msd_head, ifelse(header=="np", "Percent (n)", sprintf("Percent (n) or %s", msd_head)))
   tab_out <- if(tab_in$type == "m"){
     values <- sapply(targets, pct_fxn)
-    data_frame(group=tab_in$varnm, Characteristic=targets, N=n_avail, summary_col=values)
+    tibble(group=tab_in$varnm, Characteristic=targets, N=n_avail, summary_col=values)
   } else {
-    data_frame(group=tab_in$group, Characteristic=tab_in$varnm, N=n_avail, summary_col=value)
+    tibble(group=tab_in$group, Characteristic=tab_in$varnm, N=n_avail, summary_col=value)
   } 
   tab_out %>% setNames(c("group", "Characteristic", "N", summary_head))
 }
