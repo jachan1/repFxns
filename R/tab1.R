@@ -5,8 +5,8 @@
 #' @param tab_in data.frame with variables var, varnm, and type. optional variables group, target, test_interval, fisher, mwu
 #' @param ds dataset with variables referenced in tab_in
 #' @param grp name of variable to be used for grouping
-#' @param pp rounding digits for proportions
-#' @param mp rounding digits for mean/sd
+#' @param pp rounding digits for proportions [used if rnd not in tab_in]
+#' @param mp rounding digits for mean/sd [used if rnd not in tab_in]
 #' @param long_cr boolean to request more details in parenthesis
 #' @param test boolean to request test of group differences
 #' @param denom boolean to request display of denominator in proportions
@@ -31,10 +31,11 @@
 tab1_fxn <- function(tab_in, ds, grp, pp=0, mp=1, test=F, denom=F, header="both", long_cr=F, plusmn=F){
   # print(tab_in)
   # if(tab_in$var=="ddx") browser()
-  ## tab_in should include columns "varnm", "var", "type", *optional* "group"
+  ## tab_in should include columns "varnm", "var", "type", *optional* "group" "target" "rnd"
   ## if type == "b" then target should be available
   # if(tab_in$var == "white") browser()
   if(!"group" %in% names(tab_in)) tab_in$group = ""
+  if(!"rnd" %in% names(tab_in)) tab_in$rnd = ifelse(tab_in$type %in% c("m", "b"), pp, mp)
   if(!"test_interval" %in% names(tab_in)) tab_in$test_interval = F
   if(!"fisher" %in% names(tab_in)) tab_in$fisher = F
   if(!"mwu" %in% names(tab_in)) tab_in$mwu = F
@@ -46,8 +47,8 @@ tab1_fxn <- function(tab_in, ds, grp, pp=0, mp=1, test=F, denom=F, header="both"
   }
   
   if(!missing(grp)){
-    ds_out <- ds %>% group_by_(grp) %>% 
-      do(tab1_fxn_hpr(.,tab_in, pp=pp, mp=mp, denom=denom, header=header, long_cr=long_cr, targets=targets, plusmn=plusmn))
+    ds_out <- ds %>% group_by(!! sym(grp)) %>% 
+      do(tab1_fxn_hpr(.,tab_in, denom=denom, header=header, long_cr=long_cr, targets=targets, plusmn=plusmn))
     if(test){
       p <- tryCatch(test_grp(ds, grp, tab_in), error=function(e) NA)
       ds_out <- ds_out %>% ungroup %>% mutate(p=p)
@@ -55,7 +56,7 @@ tab1_fxn <- function(tab_in, ds, grp, pp=0, mp=1, test=F, denom=F, header="both"
     }
     ds_out
   } else {
-    ds %>% do(tab1_fxn_hpr(., tab_in, pp=pp, mp=mp, denom=denom, header=header, long_cr=long_cr, targets=targets, plusmn=plusmn))
+    ds %>% do(tab1_fxn_hpr(., tab_in, denom=denom, header=header, long_cr=long_cr, targets=targets, plusmn=plusmn))
   }
 }
 
@@ -63,9 +64,11 @@ tab1_fxn <- function(tab_in, ds, grp, pp=0, mp=1, test=F, denom=F, header="both"
 #' @title tab1 helper function
 #' @export
 
-tab1_fxn_hpr <- function(ds, tab_in, pp, mp, denom=F, header="both", long_cr=F, targets=c(), plusmn=F){
+tab1_fxn_hpr <- function(ds, tab_in, denom=F, header="both", long_cr=F, targets=c(), plusmn=F){
   ## header can be both, msd, or np
   # if(tab_in$var=="ddx") browser()
+
+  rnd <- tab_in$rnd[1]
   var_values <- ds[[as.character(tab_in$var)]]
   var_values <- if(class(var_values) == "factor") {
     as.character(var_values)
@@ -74,25 +77,25 @@ tab1_fxn_hpr <- function(ds, tab_in, pp, mp, denom=F, header="both", long_cr=F, 
   }
   n_avail <- sum(!is.na(var_values))
   pct_fxn <- if(denom){
-    function(target=tab_in$target) sprintf("%1.*f%% (%g/%g)", pp, 100*sum(var_values == target, na.rm=T)/sum(!is.na(var_values)), sum(var_values == target, na.rm=T), sum(!is.na(var_values)))
+    function(target=tab_in$target) sprintf("%1.*f%% (%g/%g)", rnd, 100*sum(var_values == target, na.rm=T)/sum(!is.na(var_values)), sum(var_values == target, na.rm=T), sum(!is.na(var_values)))
   } else {
-    function(target=tab_in$target) sprintf("%1.*f%% (%g)", pp, 100*sum(var_values == target, na.rm=T)/sum(!is.na(var_values)), sum(var_values == target, na.rm=T))
+    function(target=tab_in$target) sprintf("%1.*f%% (%g)", rnd, 100*sum(var_values == target, na.rm=T)/sum(!is.na(var_values)), sum(var_values == target, na.rm=T))
   }
   msd_str <- ifelse(plusmn, "%1.*f &plusmn; %1.*f", "%1.*f (%1.*f)")
   msd_fxn <- function(vv=var_values) sprintf(msd_str, 
-                                             mp, mean(vv, na.rm=T), 
-                                             mp, sd(vv, na.rm=T))
+                                             rnd, mean(vv, na.rm=T), 
+                                             rnd, sd(vv, na.rm=T))
   msd_long_fxn <- function(vv=var_values) {
     nvv <- sum(!is.na(vv))
     mnvv <- mean(vv, na.rm=T)
     sdvv <- sd(vv, na.rm=T)
     sprintf("%1.*f (%1.*f, 95%% CI: %1.*f, %1.*f, range: %1.*f, %1.*f)", 
-                                                  mp, mnvv, 
-                                                  mp, sdvv,
-                                                  mp, mnvv - qt(0.975, nvv-1)*sdvv/sqrt(nvv),
-                                                  mp, mnvv + qt(0.975, nvv-1)*sdvv/sqrt(nvv),
-                                                  mp, min(vv, na.rm=T),
-                                                  mp, max(vv, na.rm=T))
+            rnd, mnvv, 
+            rnd, sdvv,
+            rnd, mnvv - qt(0.975, nvv-1)*sdvv/sqrt(nvv),
+            rnd, mnvv + qt(0.975, nvv-1)*sdvv/sqrt(nvv),
+            rnd, min(vv, na.rm=T),
+            rnd, max(vv, na.rm=T))
   }
   value = if(tab_in$type == "c"){
     if(long_cr) {
