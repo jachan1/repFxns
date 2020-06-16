@@ -162,36 +162,51 @@ test_grp <- function(ds, grp, tab_in){
 #' @title print out grouped table
 #' @export
 
-grp_tirc<- function(x, rgroup_col="group", grp="study_grp", rnames="Characteristic", p=F, summ_col, ...){
-  if(p == F) p <- as.character()
+grp_tirc<- function(x, rgroup_col="group", 
+                    grp="study_grp", rnames="Characteristic", p=F, summ_col="Percent (n) or Mean (SD)", 
+                    grp_ordr, ...){
+
   if(!rgroup_col %in% names(x)) x[[rgroup_col]]=""
-  
-  cols <- setdiff(names(x), c(grp, p))
-  
+  if(!"ordr" %in% names(x)) x$ordr <- 1
+
   miss_str <- "Missing"
   while(miss_str %in% names(x)) {
     miss_str <- paste0("~", miss_str)
   }
   
   x_pc <- x %>% 
-    mutate(rorder = factor(paste(!! sym(rgroup_col), !! sym(rnames), sep="_1_")))
+    ungroup() %>% 
+    mutate_at(summ_col, function(x) ifelse(x=="NaN% (0)", NA, x)) %>% 
+    mutate(rorder = factor(paste(sprintf("%05d", ordr), !! sym(rgroup_col), !! sym(rnames), sep="_")))
+  
   if(any(is.na(x_pc[[grp]]))) x_pc[[grp]] <- ifelse(is.na(x_pc[[grp]]), miss_str, as.character(x_pc[[grp]]))
   
-  unique_cols <- c(rgroup_col, rnames)
-  wide <- Reduce(function(d1, d2) merge(d1, d2, by=c(unique_cols, "rorder"), all=T), 
-                 lapply(unique(x_pc[[grp]]), function(y) x_pc[x_pc[[grp]]==y, c(cols, "rorder")]))
-  grps <- as.character(unique(x_pc[[grp]]))
-  ngrps <- rep(length(cols)-2, length(grps))
+  if(missing(grp_ordr)) {
+    if(is.factor(x_pc[[grp]])) {
+      grp_ordr <- levels(x_pc[[grp]])
+    } else {
+      grp_ordr = unique(x_pc[[grp]])
+    }
+  }
+    
+  grpd_cols <- apply(expand.grid(c("N", summ_col), grp_ordr, stringsAsFactors = F), 1, paste, collapse="_")
+  
   pround <- function(p1) ifelse(p1 < 0.001, "&lt;0.001", sprintf("%1.3f", p1))
-  if(length(p) > 0) {
-    wide <- merge(wide, unique(x_pc[c(rgroup_col, rnames, p)]), by=c(rgroup_col, rnames), all.x=T)
-    grps <- c(grps, "")
-    ngrps <- c(ngrps, 1)
-    wide[[p]] <- pround(wide[[p]])
+  wide_ds <- x_pc %>% 
+    select(-ordr) %>% 
+    pivot_wider(names_from=c(!!sym(grp)), values_from=c(N, !!sym(summ_col))) %>%
+    arrange(rorder) %>% 
+    select(-rorder)
+                  
+  
+  if(p != F){
+    wide_ds <- wide_ds %>% 
+      mutate_at(p, pround)
+  } else {
+    p <- as.character()
   }
   
-  wide <- wide[order(wide[["rorder"]]), -1*which(names(wide)=="rorder")]
-  names(wide) <- c(unique_cols, rep(setdiff(cols, unique_cols), length(unique(x[[grp]]))), p)
-
-  TIRC(wide, rnames=rnames, rgroup_col=rgroup_col, cgroup=grps, n.cgroup=ngrps, ...)
+  setNames(wide_ds[c(rgroup_col, rnames, grpd_cols, p)],
+           c(rgroup_col, rnames, rep(c("N", summ_col), length(grp_ordr)), p)) %>% 
+    TIRC(rnames=rnames, rgroup_col=rgroup_col, cgroup=c(grp_ordr, p), n.cgroup=c(rep(2, length(grp_ordr)), 1), ...)
 }
