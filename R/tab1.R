@@ -202,11 +202,12 @@ grp_tirc<- function(x, rgroup_col="group",
   if(p != F){
     wide_ds <- wide_ds %>% 
       mutate_at(p, pround)
+    p_head = ""
   } else {
-    p <- as.character()
+    p_head <- p <- as.character()
   }
   
   setNames(wide_ds[c(rgroup_col, rnames, grpd_cols, p)],
            c(rgroup_col, rnames, rep(c("N", summ_col), length(grp_ordr)), p)) %>% 
-    TIRC(rnames=rnames, rgroup_col=rgroup_col, cgroup=c(grp_ordr, p), n.cgroup=c(rep(2, length(grp_ordr)), 1), ...)
+    TIRC(rnames=rnames, rgroup_col=rgroup_col, cgroup=c(grp_ordr, p_head), n.cgroup=c(rep(2, length(grp_ordr)), length(p)), ...)
 }
