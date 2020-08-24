@@ -76,7 +76,7 @@ tab1_fxn_hpr <- function(ds, tab_in, denom=F, header="both", long_cr=F, targets=
   var_values <- if(class(var_values) == "factor") {
     as.character(var_values)
   } else {
-    ifelse(var_values == "", NA, var_values)
+    ifelse(as.character(var_values) == "", NA, var_values)
   }
   n_avail <- sum(!is.na(var_values))
   pct_fxn <- if(denom){
