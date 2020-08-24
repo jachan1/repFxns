@@ -59,7 +59,7 @@ if(tab_in$var == "elescrlr") browser()
   } else {
     ds %>% 
       do(tab1_fxn_hpr(., tab_in, denom=denom, header=header, long_cr=long_cr, targets=targets, plusmn=plusmn)) %>% 
-      mutate(across(c(Characteristic), as.character()))
+      mutate(across(c(Characteristic), as.character))
   }
 }
 
