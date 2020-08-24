@@ -34,7 +34,7 @@ tab1_fxn <- function(tab_in, ds, grp, pp=0, mp=1, test=F, denom=F, header="both"
   ## tab_in should include columns "varnm", "var", "type", *optional* "group" "target" "rnd"
   ## if type == "b" then target should be available
   # if(tab_in$var == "white") browser()
-if(tab_in$var == "elescrlr") browser()
+  # if(tab_in$var == "elescrlr") browser()
   if(!"group" %in% names(tab_in)) tab_in$group = ""
   if(!"rnd" %in% names(tab_in)) tab_in$rnd = ifelse(tab_in$type %in% c("m", "b"), pp, mp)
   if(!"test_interval" %in% names(tab_in)) tab_in$test_interval = F
