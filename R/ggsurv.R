@@ -134,9 +134,9 @@ ggsurv_m <- function(s, strata, yAxisScale, legend_title, legend_pos, starter, C
   
   ## counts added
   if(addCounts) {
-    pl <- pl + geom_text(aes(x= count_lab_x, label=count_lab, y=count_lab_y), size=3.5) +
+    pl <- pl + geom_text(aes(x= count_lab_x, label=count_lab, y=count_lab_y), size=3) +
       geom_hline(yintercept=0, color="#CCCCCC", linetype="dotted") +
-      geom_text(aes(x=min(dat$time)-range(dat$time)[2]*0.03, label=lablab, y=lablaby), size=3.5)
+      geom_text(aes(x=min(time)-range(time)[2]*0.03, label=lablab, y=lablaby), size=3)
   }
   
   ## colors defined
@@ -251,8 +251,8 @@ ggsurv_s <- function(s, yAxisScale, CI, plot.cens, surv.col, cens.col, lty.est, 
   
   ## add counts below graph
   if(addCounts) {
-    pl <- pl + geom_text(aes(x=lab_time, label=count_lab, y=-0.08), size=3.5) +
-      geom_hline(yintercept=min(dat$time), color="#BBBBBB", linetype="dashed")
+    pl <- pl + geom_text(aes(x=lab_time, label=count_lab, y=-0.08), size=3) +
+      geom_hline(yintercept=min(time), color="#BBBBBB", linetype="dashed")
   }
   
   ## add rectangles for error
