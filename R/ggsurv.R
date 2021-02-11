@@ -53,7 +53,10 @@ ggsurv <- function(s, ...){
 #' @title ggsurv multi level helper
 #' @export
 
-ggsurv_m <- function(s, strata, yAxisScale, legend_title, legend_pos, starter, CI, plot.cens, surv.col, cens.col, lty.est, lty.ci, cens.shape, xlab, ylab, main, cumProb, yTicks, dataLabels, addCounts, bw, strata_names) {
+ggsurv_m <- function(s, strata, yAxisScale, legend_title, legend_pos, starter, 
+                     CI, plot.cens, surv.col, cens.col, lty.est, lty.ci, 
+                     cens.shape, xlab, ylab, main, cumProb, yTicks, dataLabels, 
+                     addCounts, count_size, bw, strata_names) {
   nticks <- seq(0,1, length.out=yTicks)
   nlabs <- paste0(100*nticks, "%")
   yAxisScale <- scale_y_continuous(limits=c(ifelse(addCounts, -0.125 - 0.065*(strata-1), -0.025),1.1), breaks=nticks, labels = nlabs)
@@ -134,9 +137,9 @@ ggsurv_m <- function(s, strata, yAxisScale, legend_title, legend_pos, starter, C
   
   ## counts added
   if(addCounts) {
-    pl <- pl + geom_text(aes(x= count_lab_x, label=count_lab, y=count_lab_y), size=3) +
+    pl <- pl + geom_text(aes(x= count_lab_x, label=count_lab, y=count_lab_y), size=count_size) +
       geom_hline(yintercept=0, color="#CCCCCC", linetype="dotted") +
-      geom_text(aes(x=min(time)-range(time)[2]*0.03, label=lablab, y=lablaby), size=3)
+      geom_text(aes(x=min(time)-range(time)[2]*0.03, label=lablab, y=lablaby), size=count_size)
   }
   
   ## colors defined
@@ -189,7 +192,10 @@ ggsurv_m <- function(s, strata, yAxisScale, legend_title, legend_pos, starter, C
 #' @rdname ggsurv_s
 #' @title ggsurv single level helper
 #' @export
-ggsurv_s <- function(s, yAxisScale, CI, plot.cens, surv.col, cens.col, lty.est, lty.ci, cens.shape, xlab, ylab, main, cumProb, yTicks, dataLabels, addCounts, bw, legend_title, legend_pos, strata_names){
+ggsurv_s <- function(s, yAxisScale, CI, plot.cens, surv.col, cens.col, 
+                     lty.est, lty.ci, cens.shape, xlab, ylab, main, 
+                     cumProb, yTicks, dataLabels, addCounts, count_size,
+                     bw, legend_title, legend_pos, strata_names){
   nticks <- if(addCounts){
     c(-0.08, seq(0,1, length.out=yTicks))
   } else seq(0,1, length.out=yTicks)
@@ -251,7 +257,7 @@ ggsurv_s <- function(s, yAxisScale, CI, plot.cens, surv.col, cens.col, lty.est, 
   
   ## add counts below graph
   if(addCounts) {
-    pl <- pl + geom_text(aes(x=lab_time, label=count_lab, y=-0.08), size=3) +
+    pl <- pl + geom_text(aes(x=lab_time, label=count_lab, y=-0.08), size=count_size) +
       geom_hline(yintercept=min(time), color="#BBBBBB", linetype="dashed")
   }
   
@@ -281,7 +287,7 @@ ggsurv.survfit <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
                            cens.col = 'red', lty.est = 1, lty.ci = 2,
                            cens.shape = 3, xlab = 'Time',
                            ylab = '', main = '', cumProb = F, yTicks=5, 
-                           dataLabels="", addCounts=F, bw=F,
+                           dataLabels="", addCounts=F, count_size=3, bw=F,
                            legend_title, legend_pos, ...){
   
   ## confirm validity of parameters
