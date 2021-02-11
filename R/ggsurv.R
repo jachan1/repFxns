@@ -56,7 +56,7 @@ ggsurv <- function(s, ...){
 ggsurv_m <- function(s, strata, yAxisScale, legend_title, legend_pos, starter, 
                      CI, plot.cens, surv.col, cens.col, lty.est, lty.ci, 
                      cens.shape, xlab, ylab, main, cumProb, yTicks, dataLabels, 
-                     addCounts, count_size, bw, strata_names) {
+                     addCounts, count_size, bw, strata_names, ...) {
   nticks <- seq(0,1, length.out=yTicks)
   nlabs <- paste0(100*nticks, "%")
   yAxisScale <- scale_y_continuous(limits=c(ifelse(addCounts, -0.125 - 0.065*(strata-1), -0.025),1.1), breaks=nticks, labels = nlabs)
@@ -66,10 +66,9 @@ ggsurv_m <- function(s, strata, yAxisScale, legend_title, legend_pos, starter,
     ylab = ifelse(cumProb, "Cumulative Probability", "Survival")
   }
   
-  gr.name <- if(missing(legend_title)) {
+  gr.name <- if(is.na(legend_title)) {
     ifelse("survfit" %in% class(s), unlist(strsplit(names(s$strata), '='))[1], NA)
-  }
-  else {
+  } else {
     gr.name = legend_title
   }
   
@@ -175,7 +174,7 @@ ggsurv_m <- function(s, strata, yAxisScale, legend_title, legend_pos, starter,
   } else if(plot.cens == T & all(dat$cens == 0)) {
     stop ('There are no censored observations')
   }
-  lPos <- if(missing(legend_pos)){
+  lPos <- if(is.na(legend_pos)){
     if(cumProb) {
       c(0,1)
     } else {
@@ -288,7 +287,7 @@ ggsurv.survfit <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
                            cens.shape = 3, xlab = 'Time',
                            ylab = '', main = '', cumProb = F, yTicks=5, 
                            dataLabels="", addCounts=F, count_size=3, bw=F,
-                           legend_title, legend_pos, ...){
+                           legend_title=NA, legend_pos=NA, ...){
   
   ## confirm validity of parameters
   strata <- ifelse(is.null(s$strata) ==T, 1, length(s$strata))
@@ -309,9 +308,10 @@ ggsurv.survfit <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
     gr.df <- vector('list', strata)
     ind <- vector('list', strata)
     n.ind <- c(0,s$strata); n.ind <- cumsum(n.ind)
-    for(i in 1:strata) ind[[i]] <- (n.ind[i]+1):n.ind[i+1]
+    
     ## need to build data separately for strata
     for(i in 1:strata){
+      ind[[i]] <- (n.ind[i]+1):n.ind[i+1]
       if (cumProb) {
         survCol <- 1 - c(1, s$surv[ ind[[i]] ])
         lowCol <- 1 - c(1, s$lower[ ind[[i]] ])
@@ -335,12 +335,24 @@ ggsurv.survfit <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
     }
     return(gr.df)
   }
-  
+  defaults <- as.list(formals())
+  givens <- as.list(match.call()[-1])
+  used_def <- defaults[!names(defaults) %in% c("...", names(givens))]
+  .args <- c(givens, defaults[!names(defaults) %in% names(givens)])
+
   ## call either single or multi strata function
   if(strata == 1) {
-    ggsurv_s(s, yAxisScale, CI, plot.cens, surv.col, cens.col, lty.est, lty.ci, cens.shape, xlab, ylab, main, cumProb, yTicks, dataLabels, addCounts, bw, legend_title, legend_pos, strata_names)
+    call1 <- match.call(expand.dots=T)
+    call1[[1L]] <- as.name("ggsurv_s")
+    for(i in 1:length(used_def)) call1[[names(used_def)[i]]] <- as.name(names(used_def)[i])
+    eval(call1)
   } else {
-    ggsurv_m(s, strata, yAxisScale, legend_title, legend_pos, ggsurv_m_starter, CI, plot.cens, surv.col, cens.col, lty.est, lty.ci, cens.shape, xlab, ylab, main, cumProb, yTicks, dataLabels, addCounts, bw, strata_names)
+    call1 <- match.call(expand.dots=T)
+    call1[[1L]] <- as.name("ggsurv_m")
+    call1$starter = as.name("ggsurv_m_starter")
+    call1$strata = as.name("strata")
+    for(i in 1:length(used_def)) call1[[names(used_def)[i]]] <- as.name(names(used_def)[i])
+    eval(call1)
   }
 }
 
@@ -353,17 +365,13 @@ ggsurv.survfit.cox <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
                                cens.shape = 3, xlab = 'Time',
                                ylab = '', main = '', cumProb = F, yTicks=5,
                                dataLabels="", addCounts=F, bw=F,
-                               legend_title, legend_pos, strata_names){
+                               legend_title, legend_pos){
   
   ## confirm validity of parameters
   strata <- ifelse(is.null(ncol(s$surv)) ==T, 1, ncol(s$surv))
   stopifnot(length(surv.col) == 1 | length(surv.col) == strata)
   stopifnot(length(lty.est) == 1 | length(lty.est) == strata)
-  if(!missing(strata_names)) {
-    stopifnot(length(strata_names) == strata)
-  } else {
-    strata_names <- colnames(s$surv)
-  }
+
   # if(class(s) != "survfit") stop("First parameter needs to be a survfit object")
   ## need a separate construction for single strata and multi-strata
 
@@ -372,6 +380,7 @@ ggsurv.survfit.cox <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
     strata <- ifelse(is.null(ncol(s$surv)) ==T, 1, ncol(s$surv))
     gr.df <- vector('list', strata)
     
+    snm <- sub("^.*?=", "", names(s$strata))
     ## need to build data separately for strata
     for(i in 1:strata){
       
@@ -386,7 +395,7 @@ ggsurv.survfit.cox <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
       }
       tmp <- tibble(time=c(0, s$time), surv=survCol, 
                         up=highCol, low=lowCol,
-                        cens=c(0, s$n.censor), group=strata_names[i],
+                        cens=c(0, s$n.censor), group=snm[i],
                         atRisk=c(s$n.risk[1], s$n.risk))
       tmp$timeMax <- c(tmp$time[-1], tmp$time[length(tmp$time)])
       gr.df[[i]] <- tmp
@@ -394,10 +403,23 @@ ggsurv.survfit.cox <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
     return(gr.df)
   }
   
+  defaults <- as.list(formals())
+  givens <- as.list(match.call()[-1])
+  used_def <- defaults[!names(defaults) %in% c("...", names(givens))]
+  .args <- c(givens, defaults[!names(defaults) %in% names(givens)])
   ## call either single or multi strata function
   if(strata == 1) {
-    ggsurv_s(s, yAxisScale, CI, plot.cens, surv.col, cens.col, lty.est, lty.ci, cens.shape, xlab, ylab, main, cumProb, yTicks, dataLabels, addCounts, bw, legend_title, legend_pos, strata_names)
+    call1 <- match.call(expand.dots=T)
+    call1[[1L]] <- as.name("ggsurv_s")
+    for(i in 1:length(used_def)) call1[[names(used_def)[i]]] <- as.name(names(used_def)[i])
+    eval(call1)
   } else {
-    ggsurv_m(s, strata, yAxisScale, legend_title, legend_pos, ggsurv_m_starter, CI, plot.cens, surv.col, cens.col, lty.est, lty.ci, cens.shape, xlab, ylab, main, cumProb, yTicks, dataLabels, addCounts, bw, strata_names)
+    call1 <- match.call(expand.dots=T)
+    call1[[1L]] <- as.name("ggsurv_m")
+    call1$starter = as.name("ggsurv_m_starter")
+    call1$strata = as.name("strata")
+    for(i in 1:length(used_def)) call1[[names(used_def)[i]]] <- as.name(names(used_def)[i])
+    eval(call1)
   }
+
 }
