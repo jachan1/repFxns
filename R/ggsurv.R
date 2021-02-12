@@ -338,20 +338,19 @@ ggsurv.survfit <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
   defaults <- as.list(formals())
   givens <- as.list(match.call()[-1])
   used_def <- defaults[!names(defaults) %in% c("...", names(givens))]
-  .args <- c(givens, defaults[!names(defaults) %in% names(givens)])
-
+  .args <- c(givens, defaults[!names(defaults) %in% c(names(givens), "...")])
+  
   ## call either single or multi strata function
   if(strata == 1) {
-    call1 <- match.call(expand.dots=T)
-    call1[[1L]] <- as.name("ggsurv_s")
-    for(i in 1:length(used_def)) call1[[names(used_def)[i]]] <- as.name(names(used_def)[i])
+    call1 <- call("ggsurv_s")
+    for(i in 1:length(.args)) call1[[names(.args)[i]]] <- as.name(names(.args)[i])
+    call1$strata = as.name("strata")
     eval(call1)
   } else {
-    call1 <- match.call(expand.dots=T)
-    call1[[1L]] <- as.name("ggsurv_m")
+    call1 <- call("ggsurv_m")
+    for(i in 1:length(.args)) call1[[names(.args)[i]]] <- as.name(names(.args)[i])
     call1$starter = as.name("ggsurv_m_starter")
     call1$strata = as.name("strata")
-    for(i in 1:length(used_def)) call1[[names(used_def)[i]]] <- as.name(names(used_def)[i])
     eval(call1)
   }
 }
