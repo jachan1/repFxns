@@ -104,18 +104,26 @@ ggsurv_m <- function(s, strata, yAxisScale, legend_title, legend_pos, starter,
   ## dat needs to have addcounts info added before ggplot first called
   if(addCounts) {
     dat$group <- factor(sprintf("%g: %s", as.numeric(dat$group), dat$group))
-    tmp <- as.data.frame(with(dat %>% filter(time > 0), table(group, time_grp))) %>% filter(Freq == 0) 
+    tmp <- dat %>%
+      filter(time > 0) %>% 
+      with(table(group, time_grp)) %>%
+      as.data.frame() %>% 
+      filter(Freq == 0) 
     allrows <- NULL
     if(nrow(tmp) > 0){
       levels(tmp[['time_grp']]) <- time_grps[-1]
       for(i in 1:nrow(tmp)){
         time_cut <- as.numeric(as.character(tmp[['time_grp']][i]))
         allrows <- bind_rows(allrows,
-                             dat %>% filter(group == as.character(tmp[['group']][i])) %>% filter(time == max(ifelse(time <= time_cut, time, -Inf))) %>% 
+                             dat %>% 
+                               filter(group == as.character(tmp[['group']][i])) %>%
+                               filter(time == max(ifelse(time <= time_cut, time, -Inf))) %>% 
                                mutate(time = time_cut, count_lab = atRisk, count_lab_x = time_cut))
       }
     }
-    dat <- bind_rows(allrows, dat) %>% arrange(group, time)
+    dat <- bind_rows(allrows, dat) %>% 
+      arrange(group, time) %>% 
+      mutate(count_lab = ifelse(is.na(lablab), paste(count_lab), paste(lablab, count_lab)))
   }
   
   ## initial plot created
@@ -137,8 +145,7 @@ ggsurv_m <- function(s, strata, yAxisScale, legend_title, legend_pos, starter,
   ## counts added
   if(addCounts) {
     pl <- pl + geom_text(aes(x= count_lab_x, label=count_lab, y=count_lab_y), size=count_size) +
-      geom_hline(yintercept=0, color="#CCCCCC", linetype="dotted") +
-      geom_text(aes(x=min(time)-range(time)[2]*0.03, label=lablab, y=lablaby), size=count_size)
+      geom_hline(yintercept=0, color="#CCCCCC", linetype="dotted")
   }
   
   ## colors defined
@@ -298,6 +305,7 @@ ggsurv.survfit <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
 
   # Extract info from survfit object 
   ggsurv_m_starter <- function(s, legend_title) {
+ 
     strata <- ifelse(is.null(s$strata) ==T, 1, length(s$strata))
     
     groups <- factor(unlist(strsplit(names
@@ -329,7 +337,7 @@ ggsurv.survfit <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
         cens = c(0, s$n.censor[ ind[[i]] ]),
         group = rep(groups[i], s$strata[i] + 1),
         groupFull = rep(names(s$strata)[i], s$strata[i] + 1),
-        atRisk = c(s$n.risk[1], s$n.risk[ ind[[i]] ]))
+        atRisk = c(s$n.risk[ind[[i]]][1], s$n.risk[ ind[[i]] ]))
       tmp$timeMax <- c(tmp$time[-1], tmp$time[length(tmp$time)])
       gr.df[[i]] <- tmp
     }
