@@ -239,6 +239,7 @@ ggsurv_s <- function(s, yAxisScale, CI, plot.cens, surv.col, cens.col,
   
   ## extra rows need to be created in order for survival numbers to be added
   ncount_labs <- 6
+  
   time_seq <- with(dat, seq(min(time), max(time), length.out = ncount_labs))
   
   count_cuts <- dat %>% mutate(time_grp = cut(time, time_seq)) %>% 
@@ -251,6 +252,7 @@ ggsurv_s <- function(s, yAxisScale, CI, plot.cens, surv.col, cens.col,
                          lab_time = time_seq), by="time")
   
   ## initial ggplot object created
+  min_time <- min(dat$time)
   pl <- ggplot(dat, aes(x = time, y = surv)) +
     xlab(xlab) + ylab(ylab) + ggtitle(main) +
     yAxisScale +
@@ -264,7 +266,7 @@ ggsurv_s <- function(s, yAxisScale, CI, plot.cens, surv.col, cens.col,
   ## add counts below graph
   if(addCounts) {
     pl <- pl + geom_text(aes(x=lab_time, label=count_lab, y=-0.08), size=count_size) +
-      geom_hline(yintercept=min(time), color="#BBBBBB", linetype="dashed")
+      geom_hline(yintercept=min_time, color="#BBBBBB", linetype="dashed")
   }
   
   ## add rectangles for error
