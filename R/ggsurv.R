@@ -56,7 +56,8 @@ ggsurv <- function(s, ...){
 ggsurv_m <- function(s, strata, yAxisScale, legend_title, legend_pos, starter, 
                      CI, plot.cens, surv.col, cens.col, lty.est, lty.ci, 
                      cens.shape, xlab, ylab, main, cumProb, yTicks, dataLabels, 
-                     addCounts, count_size, bw, strata_names, ...) {
+                     addCounts, count_size, bw, strata_names, cens.col.match, 
+                     cens.seq, cens.cnt = 6, ...) {
   nticks <- seq(0,1, length.out=yTicks)
   nlabs <- paste0(100*nticks, "%")
   yAxisScale <- scale_y_continuous(limits=c(ifelse(addCounts, -0.125 - 0.065*(strata-1), -0.025),1.1), breaks=nticks, labels = nlabs)
@@ -92,10 +93,11 @@ ggsurv_m <- function(s, strata, yAxisScale, legend_title, legend_pos, starter,
     x$count_lab_x[1] <- 0
     x
   }
-  
+  time_range <- range(unlist(lapply(gr.df, "[[", "time")))
+  if(missing(cens.seq)) cens.seq <- seq(time_range[1], time_range[2], length.out = cens.cnt)
   dat <- bind_rows(gr.df) %>% mutate(group=factor(group)) %>%
-    mutate(time_grp = cut(time, seq(min(time), max(time), length.out = 6), include.lowest = T), 
-           time_max = factor(as.numeric(time_grp), levels=1:length(levels(time_grp)), labels=seq(min(time), max(time), length.out = 6)[-1]),
+    mutate(time_grp = cut(time, cens.seq, include.lowest = T), 
+           time_max = factor(as.numeric(time_grp), levels=1:length(levels(time_grp)), labels=cens.seq[-1]),
            count_lab=NA, count_lab_x=NA, count_lab_y=NA) %>% 
     group_by(group, time_grp) %>% arrange(time) %>% do(makecnts(.)) %>% 
     group_by(group) %>% do(makezeros(.)) %>% ungroup()
@@ -127,7 +129,9 @@ ggsurv_m <- function(s, strata, yAxisScale, legend_title, legend_pos, starter,
   }
   
   ## initial plot created
-  pl <- ggplot(dat, aes(x = time, y = surv, group = group)) +
+  pl <- dat %>%
+    filter(is.na(lablab)) %>%
+    ggplot(aes(x = time, y = surv, group = group)) +
     xlab(xlab) + ylab(ylab) + ggtitle(main) +
     yAxisScale +
     theme(axis.line = element_line(colour = "black"),
@@ -144,7 +148,7 @@ ggsurv_m <- function(s, strata, yAxisScale, legend_title, legend_pos, starter,
   
   ## counts added
   if(addCounts) {
-    pl <- pl + geom_text(aes(x= count_lab_x, label=count_lab, y=count_lab_y), size=count_size) +
+    pl <- pl + geom_text(data=dat[!is.na(dat$count_lab_x), ], aes(x= count_lab_x, label=count_lab, y=count_lab_y), size=count_size) +
       geom_hline(yintercept=0, color="#CCCCCC", linetype="dotted")
   }
   
@@ -176,11 +180,17 @@ ggsurv_m <- function(s, strata, yAxisScale, legend_title, legend_pos, starter,
   
   ## plot censor points
   if(plot.cens == T & any(dat$cens > 0)){
-    pl <- pl + geom_point(data = dat %>% filter(cens > 0), aes(y = surv), shape = cens.shape,
-                          col = cens.col)
+    if(cens.col.match) {
+      pl <- pl + geom_point(data = dat %>% filter(cens > 0), aes(y = surv, col=group), 
+                            shape = cens.shape, size=1.75)
+    } else {
+      pl <- pl + geom_point(data = dat %>% filter(cens > 0), aes(y = surv), shape = cens.shape,
+                            col = cens.col)
+    }
   } else if(plot.cens == T & all(dat$cens == 0)) {
     stop ('There are no censored observations')
   }
+  
   lPos <- if(is.na(legend_pos)){
     if(cumProb) {
       c(0,1)
@@ -201,7 +211,8 @@ ggsurv_m <- function(s, strata, yAxisScale, legend_title, legend_pos, starter,
 ggsurv_s <- function(s, yAxisScale, CI, plot.cens, surv.col, cens.col, 
                      lty.est, lty.ci, cens.shape, xlab, ylab, main, 
                      cumProb, yTicks, dataLabels, addCounts, count_size,
-                     bw, legend_title, legend_pos, strata_names){
+                     bw, legend_title, legend_pos, strata_names, cens.col.match,
+                     cens.seq, cens.cnt){
   nticks <- if(addCounts){
     c(-0.08, seq(0,1, length.out=yTicks))
   } else seq(0,1, length.out=yTicks)
@@ -238,18 +249,18 @@ ggsurv_s <- function(s, yAxisScale, CI, plot.cens, surv.col, cens.col,
   col <- ifelse(surv.col == 'gg.def', 'black', surv.col)
   
   ## extra rows need to be created in order for survival numbers to be added
-  ncount_labs <- 6
   
-  time_seq <- with(dat, seq(min(time), max(time), length.out = ncount_labs))
+  time_range <- range(dat$time)
+  if(missing(cens.seq)) cens.seq <- seq(time_range[1], time_range[2], length.out = cens.cnt)
   
-  count_cuts <- dat %>% mutate(time_grp = cut(time, time_seq)) %>% 
+  count_cuts <- dat %>% mutate(time_grp = cut(time, cens.seq)) %>% 
     group_by(time_grp) %>% summarise(time=max(time)) %>% right_join(tibble(time_grp=levels(.$time_grp)), by="time_grp")
   
   dat$count_lab <- dat$atRisk
   dat$count_lab[!dat$time %in% c(min(dat$time), count_cuts$time)] <- NA
   dat <- dat %>% 
     left_join(tibble(time = c(min(dat$time), count_cuts$time), 
-                         lab_time = time_seq), by="time")
+                         lab_time = cens.seq), by="time")
   
   ## initial ggplot object created
   min_time <- min(dat$time)
@@ -277,8 +288,14 @@ ggsurv_s <- function(s, yAxisScale, CI, plot.cens, surv.col, cens.col,
   
   ## plot censor data as crosses
   pl <- if(plot.cens == T & length(dat.cens) > 0){
-    pl + geom_point(data = dat.cens, aes(y = surv), shape = cens.shape,
-                    col = cens.col)
+    if(cens.col.match) {
+      pl + geom_point(data = dat.cens, aes(y = surv, col=group),
+                      shape = cens.shape, size=1.75)
+    } else {
+      pl + geom_point(data = dat.cens, aes(y = surv), shape = cens.shape,
+                      col = cens.col)
+    }
+    
   } else if (plot.cens == T & length(dat.cens) == 0){
     stop ('There are no censored observations')
   } else(pl)
@@ -296,7 +313,8 @@ ggsurv.survfit <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
                            cens.shape = 3, xlab = 'Time',
                            ylab = '', main = '', cumProb = F, yTicks=5, 
                            dataLabels="", addCounts=F, count_size=3, bw=F,
-                           legend_title=NA, legend_pos=NA, ...){
+                           legend_title=NA, legend_pos=NA, cens.col.match=F,
+                           cens.cnt = 6, cens.seq, ...){
   
   ## confirm validity of parameters
   strata <- ifelse(is.null(s$strata) ==T, 1, length(s$strata))
@@ -373,7 +391,8 @@ ggsurv.survfit.cox <- function(s, CI = T, plot.cens = T, surv.col = 'gg.def',
                                cens.col = 'red', lty.est = 1, lty.ci = 2,
                                cens.shape = 3, xlab = 'Time',
                                ylab = '', main = '', cumProb = F, yTicks=5,
-                               dataLabels="", addCounts=F, bw=F,
+                               dataLabels="", addCounts=F, bw=F, cens.col.match=F,
+                               cens.cnt = 6, cens.seq,
                                legend_title, legend_pos){
   
   ## confirm validity of parameters
